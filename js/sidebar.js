@@ -1,53 +1,49 @@
-function loadSidebar() {
-  const user = JSON.parse(localStorage.getItem("crmCurrentUser"));
-  if (!user) return location.href = "login.html";
+document.addEventListener("DOMContentLoaded", () => {
+  const navItems = document.querySelectorAll(".nav-item");
+  const appWrapper = document.getElementById("appWrapper");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const toggleBtn = document.querySelector(".sidebar-toggle");
+  const sidebar = document.querySelector(".sidebar");
 
-  const app = document.getElementById("appWrapper");
-  app.innerHTML = "";
+  function loadPage(page) {
+    fetch(page)
+      .then(res => res.text())
+      .then(html => {
+        appWrapper.innerHTML = html;
 
-  const sidebar = document.createElement("div");
-  sidebar.className = "sidebar";
-  sidebar.innerHTML = `
-    <h2 class="sidebar-title">🧊 Coldi CRM</h2>
-    <nav>
-      <ul>
-        <li onclick="loadContent('home.html')">🏠 <span data-i18n="menu.home">Home</span></li>
-        <li onclick="loadContent('leads.html')">📋 <span data-i18n="menu.leads">Leads</span></li>
-        ${user.role === "admin" ? `<li onclick="loadContent('settings.html')">⚙️ <span data-i18n="menu.settings">Settings</span></li>` : ""}
-        <li onclick="logout()">🚪 <span data-i18n="menu.logout">Logout</span></li>
-      </ul>
-    </nav>
-    <button id="toggleSidebarBtn" title="Toggle Sidebar">☰</button>
-  `;
+        // Инициализация логики вкладок
+        if (page === "leads.html" && typeof initLeads === "function") initLeads();
+        if (page === "settings.html" && typeof initSettingsPage === "function") initSettingsPage();
+        if (page === "home.html" && typeof initHomePage === "function") initHomePage();
+        if (typeof applyTranslations === "function") applyTranslations();
+      });
+  }
 
-  const content = document.createElement("div");
-  content.id = "mainContent";
-  content.className = "main-content";
-
-  app.appendChild(sidebar);
-  app.appendChild(content);
-
-  document.getElementById("toggleSidebarBtn").onclick = () => {
-    sidebar.classList.toggle("collapsed");
-  };
-}
-
-function loadContent(page) {
-  const main = document.getElementById("mainContent");
-  main.classList.add("fade-out");
-
-  fetch(page)
-    .then(res => res.text())
-    .then(html => {
-      setTimeout(() => {
-        main.innerHTML = html;
-        main.classList.remove("fade-out");
-        updateTranslations();
-      }, 200);
+  navItems.forEach(item => {
+    item.addEventListener("click", () => {
+      navItems.forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
+      const page = item.getAttribute("data-page");
+      if (page) loadPage(page);
     });
-}
+  });
 
-function logout() {
-  localStorage.removeItem("crmCurrentUser");
-  location.href = "login.html";
-}
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("crmCurrentUser");
+    window.location.href = "login.html";
+  });
+
+  toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed");
+  });
+
+  const currentUser = JSON.parse(localStorage.getItem("crmCurrentUser"));
+  if (!currentUser) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const defaultItem = document.querySelector(`[data-page="home.html"]`);
+  defaultItem?.classList.add("active");
+  loadPage("home.html");
+});

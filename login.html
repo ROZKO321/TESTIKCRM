@@ -1,34 +1,173 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CRM Login</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <title>Coldi CRM — Вход</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Inter', sans-serif;
+      background: url('img/bg-light.svg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .login-box {
+      background: #ffffffee;
+      padding: 2rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 400px;
+      animation: fadeInUp 0.8s ease;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      color: #2563eb;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: 0.2s ease;
+    }
+
+    .login-box input:focus {
+      border-color: #2563eb;
+      outline: none;
+    }
+
+    .login-box button {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      font-size: 1rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-box button:hover {
+      background-color: #1e4fd0;
+    }
+
+    .login-box select {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      width: 100%;
+    }
+
+    .error-msg {
+      color: #e53935;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      min-height: 1.2rem;
+      transition: 0.3s;
+    }
+
+    .shake {
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+      100% { transform: translateX(0); }
+    }
+
+    @media (max-width: 480px) {
+      .login-box {
+        padding: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div id="controlPanel">
-    <button id="themeToggle" title="Toggle Theme">🌓</button>
-    <select id="languageToggle" title="Change language">
-      <option value="en">EN</option>
-      <option value="ru">RU</option>
+  <div class="login-box">
+    <h2 data-i18n="login.title">Вход в Coldi CRM</h2>
+    <input type="text" id="loginInput" placeholder="Логин" data-i18n-placeholder="login.username" />
+    <input type="password" id="passwordInput" placeholder="Пароль" data-i18n-placeholder="login.password" />
+    <div id="loginError" class="error-msg"></div>
+    <button id="loginBtn" data-i18n="login.button">Войти</button>
+    <select id="languageToggle">
+      <option value="ru">🇷🇺 Русский</option>
+      <option value="en">🇬🇧 English</option>
     </select>
   </div>
 
-  <div class="login-wrapper">
-    <div class="login-box">
-      <h2 data-i18n="menu.login">Login</h2>
-      <div id="loginError" class="login-error"></div>
-      <input id="loginInput" type="text" placeholder="Login" />
-      <input id="passwordInput" type="password" placeholder="Password" />
-      <button id="loginBtn" data-i18n="menu.login">Login</button>
-    </div>
-  </div>
-
-  <script src="js/theme.js"></script>
-  <script src="js/audio.js"></script>
   <script src="js/i18n.js"></script>
-  <script src="js/login.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/init.js"></script>
+  <script>
+    const users = JSON.parse(localStorage.getItem("crmUsers")) || [];
+
+    document.getElementById("loginBtn").onclick = () => {
+      const login = document.getElementById("loginInput").value.trim();
+      const pass = document.getElementById("passwordInput").value.trim();
+      const errorBox = document.getElementById("loginError");
+
+      const found = users.find(u => u.login === login && u.password === pass);
+      if (!found) {
+        errorBox.textContent = "Неверный логин или пароль";
+        errorBox.classList.add("shake");
+        playSound && playSound("error");
+        setTimeout(() => errorBox.classList.remove("shake"), 500);
+        return;
+      }
+
+      localStorage.setItem("crmCurrentUser", JSON.stringify(found));
+      playSound && playSound("success");
+      location.href = "index.html";
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedLang = localStorage.getItem("crmLang") || "ru";
+      document.getElementById("languageToggle").value = savedLang;
+      loadLanguage(savedLang);
+    });
+
+    document.getElementById("languageToggle").addEventListener("change", (e) => {
+      const lang = e.target.value;
+      localStorage.setItem("crmLang", lang);
+      loadLanguage(lang);
+    });
+  </script>
 </body>
 </html>

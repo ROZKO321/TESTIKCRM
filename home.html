@@ -1,11 +1,150 @@
-<div class="welcome-container" style="background-image: url('https://png.pngtree.com/thumb_back/fh260/background/20210204/pngtree-abstract-background-of-information-technology-image_555014.jpg');">
-  <div class="welcome-box">
-    <h1 data-i18n="welcome.title">Welcome to Coldi Production CRM 👋</h1>
-    <p class="welcome-text" data-i18n="welcome.subtitle">Manage your leads efficiently. Stay organized. Stay productive.</p>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CRM Главная</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
+  <link href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f9fc;
+      display: flex;
+    }
 
-    <div class="quote-box">
-      <em data-i18n="quote">“Success is not final, failure is not fatal: it is the courage to continue that counts.”</em><br />
-      <span data-i18n="quote.author">— Winston Churchill</span>
+    .sidebar {
+      width: 240px;
+      background: #ffffff;
+      border-right: 1px solid #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .sidebar-logo img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .sidebar h1 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: color 0.3s;
+    }
+
+    .sidebar a:hover {
+      color: #007bff;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .welcome {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .role-info {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: #007bff;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logout-btn:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <img src="img/logo.svg" alt="CRM" />
+      <h1>CRM</h1>
     </div>
+    <a href="home.html"><i class="lucide lucide-home"></i> Главная</a>
+    <a href="leads.html"><i class="lucide lucide-users"></i> Лиды</a>
+    <a href="notifications.html"><i class="lucide lucide-bell"></i> Напоминания</a>
+    <a href="admin.html" id="admin-link" style="display: none;"><i class="lucide lucide-settings"></i> Настройки</a>
   </div>
-</div>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <div class="welcome" id="welcome-message">Добро пожаловать!</div>
+        <div class="role-info" id="role-display">Ваша роль: —</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">
+        <i class="lucide lucide-log-out"></i> Выйти
+      </button>
+    </div>
+    
+    <p>Выберите раздел в боковом меню для начала работы.</p>
+  </div>
+
+  <script>
+    const role = localStorage.getItem("role");
+    const welcome = document.getElementById("welcome-message");
+    const roleDisplay = document.getElementById("role-display");
+    const adminLink = document.getElementById("admin-link");
+
+    if (!role) {
+      window.location.href = "index.html";
+    } else {
+      if (role === "admin") {
+        welcome.innerText = "Добро пожаловать, администратор!";
+        roleDisplay.innerText = "Ваша роль: Администратор";
+        adminLink.style.display = "flex";
+      } else {
+        welcome.innerText = "Добро пожаловать, менеджер!";
+        roleDisplay.innerText = "Ваша роль: Менеджер";
+      }
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
