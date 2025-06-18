@@ -5,13 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Админ-панель — Coldi CRM</title>
   <link rel="stylesheet" href="css/style.css" />
-
-  <script>
-    const role = localStorage.getItem("role");
-    const user = localStorage.getItem("user");
-    if (!role || !user) window.location.href = "login.html";
-  </script>
-
 </head>
 <body>
   <div class="page-wrapper">
@@ -45,32 +38,7 @@
       <!-- 3. Создание аккаунта -->
       <section class="admin-section">
         <h3>👤 Создать менеджера</h3>
-        
-        <div class="form-group">
-          <input type="text" id="newManagerName" placeholder="Имя пользователя" />
-          <button onclick="createManager()">Создать</button>
-        </div>
-      </section>
-
-      <!-- 4. Назначить менеджеров -->
-      <section class="admin-section">
-        <h3>🛠 Назначить менеджера на лидов</h3>
-        <div id="assignBlock">Загрузка...</div>
-      </section>
-
-      <!-- 5. Журнал действий -->
-      <section class="admin-section">
-        <h3>📜 Лог активности</h3>
-        <div id="logContainer" class="log-container">Загрузка...</div>
-      </section>
-
-    </main>
-  </div>
-
-  <script src="js/admin.js"></script>
-</body>
-</html>
-
+        <!-- 5. Назначение менеджеров на лидов -->
 <section class="admin-section">
   <h3>📌 Назначить менеджеров</h3>
   <div id="assignContainer" class="assign-container">Загрузка лидов...</div>

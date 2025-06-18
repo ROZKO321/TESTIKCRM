@@ -6,12 +6,6 @@
   <title>Coldi CRM — Главная</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
-
-  <script>
-    const role = localStorage.getItem("role");
-    const user = localStorage.getItem("user");
-    if (!role || !user) window.location.href = "login.html";
-  </script>
 </head>
 <body>
   <div class="page-wrapper">
@@ -47,8 +41,8 @@
 
   <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
   <script>
-    const role = localStorage.getItem("role");
-    const user = localStorage.getItem("user");
+    const role = localStorage.getItem("role") || "manager";
+    const user = localStorage.getItem("user") || "Менеджер";
     document.getElementById("greeting").textContent = `Здравствуйте, ${role === "admin" ? "Администратор" : user}!`;
 
     function logout() {
