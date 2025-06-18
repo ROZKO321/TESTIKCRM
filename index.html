@@ -5,90 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coldi CRM — Вход</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body class="login-body">
-  <canvas id="backgroundCanvas"></canvas>
-
   <div class="login-container">
     <div class="login-box">
-      <h1 class="welcome-title">Добро пожаловать в <span style="color:#007bff">Coldi CRM</span></h1>
-      <p class="motivation" id="motivationText">Загрузка вдохновения...</p>
+      <div class="welcome-title">Добро пожаловать в Coldi CRM</div>
+      <div class="motivation">Сегодня — лучший день для новых достижений.</div>
 
-      <form onsubmit="login(event)">
-        <input type="text" id="login" placeholder="Логин" required />
+      <form onsubmit="return login(event)">
+        <input type="text" id="username" placeholder="Имя пользователя" required />
         <input type="password" id="password" placeholder="Пароль" required />
         <button type="submit">Войти</button>
       </form>
     </div>
   </div>
 
+  <canvas id="backgroundCanvas"></canvas>
+
   <script>
-    const quotes = [
-      "Каждый звонок — шаг к цели.",
-      "CRM — ваш инструмент влияния.",
-      "Организованность приносит прибыль.",
-      "Фокус. Энергия. Результат.",
-      "Хороший день начинается с хорошего клиента.",
-    ];
-    document.getElementById("motivationText").innerText =
-      quotes[Math.floor(Math.random() * quotes.length)];
+    // Пример входа
+    function login(event) {
+      event.preventDefault();
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
 
-    function login(e) {
-      e.preventDefault();
-      const login = document.getElementById("login").value.trim().toLowerCase();
-      const password = document.getElementById("password").value;
-
-      if (!login || !password) {
-        alert("Введите логин и пароль");
-        return;
+      if ((user === "admin" || user === "manager") && pass === "123") {
+        localStorage.setItem("user", user);
+        localStorage.setItem("role", user === "admin" ? "admin" : "manager");
+        window.location.href = "home.html";
+      } else {
+        alert("Неверные данные для входа");
       }
-
-      const role = login === "admin" ? "admin" : "manager";
-      localStorage.setItem("role", role);
-      localStorage.setItem("user", login);
-      window.location.href = "home.html";
     }
 
-    // particles animation
+    // Динамичный фон (по желанию можно отключить)
     const canvas = document.getElementById("backgroundCanvas");
     const ctx = canvas.getContext("2d");
-    let particles = [];
+    let w, h, particles;
 
     function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 1,
-        dx: Math.random() * 0.5 - 0.25,
-        dy: Math.random() * 0.5 - 0.25,
-      });
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+      initParticles();
     }
 
-    function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let p of particles) {
+    function initParticles() {
+      particles = Array.from({ length: 50 }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: (Math.random() - 0.5) * 0.8,
+        radius: Math.random() * 2 + 1
+      }));
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, w, h);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#007bff55";
+        ctx.fillStyle = "#93c5fd";
         ctx.fill();
-
-        p.x += p.dx;
-        p.y += p.dy;
-
-        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-      }
-      requestAnimationFrame(animateParticles);
+      });
+      requestAnimationFrame(animate);
     }
-    animateParticles();
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    animate();
   </script>
 </body>
 </html>

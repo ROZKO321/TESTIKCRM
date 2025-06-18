@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Админ-панель — Coldi CRM</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <aside class="sidebar">
+      <div class="logo"><img src="img/logo.svg" alt="Logo"> Coldi CRM</div>
+      <nav>
+        <a href="home.html">Главная</a>
+        <a href="leads.html">Лиды</a>
+        <a href="notifications.html">Напоминания</a>
+        <a href="admin.html" class="active">Админ</a>
+        <a href="#" onclick="logout()" class="logout-link">Выход</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <h2>Админ-панель</h2>
+
+      <!-- 1. Загрузка CSV -->
+      <section class="admin-section">
+        <h3>📥 Загрузить лидов (CSV)</h3>
+        <input type="file" id="csvUpload" accept=".csv" />
+        <button onclick="handleCSVUpload()">Загрузить</button>
+      </section>
+
+      <!-- 2. Экспорт -->
+      <section class="admin-section">
+        <h3>📤 Экспорт лидов</h3>
+        <button onclick="exportLeads()">Скачать CSV</button>
+      </section>
+
+      <!-- 3. Создание аккаунта -->
+      <section class="admin-section">
+        <h3>👤 Создать менеджера</h3>
+        <!-- 5. Назначение менеджеров на лидов -->
+<section class="admin-section">
+  <h3>📌 Назначить менеджеров</h3>
+  <div id="assignContainer" class="assign-container">Загрузка лидов...</div>
+</section>
+        <input type="text" id="newManager" placeholder="Логин менеджера (например: mgr1)" />
+        <button onclick="createManager()">Создать</button>
+      </section>
+
+      <!-- 4. Просмотр логов -->
+      <section class="admin-section">
+        <h3>📝 Логи действий</h3>
+        <div id="logOutput" class="log-output">Пока пусто</div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Уведомления -->
+  <div id="notificationIcon" class="notification-icon">
+    <img src="img/bell.svg" alt="🔔" />
+    <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
+  </div>
+  <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
+
+  <script src="js/reminder.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
