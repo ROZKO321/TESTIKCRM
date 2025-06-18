@@ -1,52 +1,46 @@
+<!-- leads.html -->
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Лиды | CRM</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="auth.js"></script>
-  <script defer src="leads.js"></script>
+  <meta charset="UTF-8">
+  <title>Лиды</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="auth.js" defer></script>
+  <script src="navbar.js" defer></script>
+  <script src="reminder.js" defer></script>
+  <script src="leads.js" defer></script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="logo">CRM</div>
-    <div class="actions">
-      <button id="remindersBtn" class="icon-button" title="Напоминания">
-        🔔 <span id="reminderCount" class="badge hidden">0</span>
-      </button>
-      <button id="logoutBtn" class="icon-button" title="Выход">🚪</button>
-    </div>
-  </header>
-
-  <main class="container">
+  <div class="container">
     <h1>Лиды</h1>
+
     <div class="filters">
-      <input type="text" id="searchInput" placeholder="Поиск по имени, email, телефону..." />
+      <input type="text" id="searchInput" placeholder="Поиск по имени, email, телефону">
+
       <select id="statusFilter">
         <option value="">Все статусы</option>
+        <option value="Новый">Новый</option>
+        <option value="В работе">В работе</option>
+        <option value="Успешно">Успешно</option>
+        <option value="Отказ">Отказ</option>
       </select>
+
       <select id="affiliateFilter">
         <option value="">Все аффилиаты</option>
       </select>
+
       <select id="perPage">
-        <option value="10">10 на странице</option>
-        <option value="20">20 на странице</option>
-        <option value="30">30 на странице</option>
-        <option value="50">50 на странице</option>
-        <option value="100">100 на странице</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
       </select>
     </div>
 
-    <div id="leadsContainer" class="grid"></div>
-
-    <div class="pagination">
-      <button id="prevPage">← Назад</button>
-      <span id="pageInfo"></span>
-      <button id="nextPage">Вперёд →</button>
-    </div>
-  </main>
-
-  <div id="reminderPopup" class="popup hidden"></div>
+    <div id="leadsContainer" class="leads-list"></div>
+    <div id="pagination" class="pagination"></div>
+  </div>
 </body>
 </html>

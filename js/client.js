@@ -1,73 +1,103 @@
-// js/client.js — отображение и работа с карточкой клиента
+// js/client.js
 
-const leads = [
-  {
-    id: 1,
-    firstName: "Артем",
-    lastName: "Иванов",
-    email: "artem@example.com",
-    phone: "+380501112233",
-    country: "Украина",
-    date: "2025-06-15",
-    affiliate: "aff1",
-    status: "new",
-    managerId: 2,
-    comments: [],
-    reminder: null
-  },
-  {
-    id: 2,
-    firstName: "Светлана",
-    lastName: "Петрова",
-    email: "sveta@example.com",
-    phone: "+380632223344",
-    country: "Украина",
-    date: "2025-06-16",
-    affiliate: "aff2",
-    status: "in_work",
-    managerId: 3,
-    comments: [],
-    reminder: null
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const clientId = params.get("id");
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user || !clientId) {
+    window.location.href = "login.html";
+    return;
   }
-];
 
-const urlParams = new URLSearchParams(window.location.search);
-const leadId = parseInt(urlParams.get("id"));
-const lead = leads.find(l => l.id === leadId);
+  const client = getClients().find(c => c.id === clientId);
+  if (!client || (user.role !== "admin" && client.manager !== user.email)) {
+    document.body.innerHTML = "<p>Нет доступа к этому клиенту</p>";
+    return;
+  }
 
-if (!lead || (user.role !== "admin" && lead.managerId !== user.id)) {
-  document.body.innerHTML = "<div class='container'><h2>Доступ запрещён</h2></div>";
-  throw new Error("Forbidden");
-}
+  document.getElementById("clientName").textContent = `${client.firstName} ${client.lastName}`;
+  document.getElementById("clientInfo").innerHTML = `
+    <p><strong>Email:</strong> ${client.email}</p>
+    <p><strong>Телефон:</strong> ${client.phone}</p>
+    <p><strong>Страна:</strong> ${client.country}</p>
+    <p><strong>Дата:</strong> ${client.date}</p>
+    <p><strong>Аффилиат:</strong> ${client.affiliate}</p>
+  `;
 
-document.getElementById("clientName").textContent = `${lead.firstName} ${lead.lastName}`;
+  // Комментарии
+  const commentBlock = document.getElementById("comments");
+  const commentInput = document.getElementById("commentInput");
+  const commentButton = document.getElementById("commentButton");
 
-document.getElementById("clientInfo").innerHTML = `
-  <p><strong>Email:</strong> ${lead.email}</p>
-  <p><strong>Телефон:</strong> ${lead.phone}</p>
-  <p><strong>Страна:</strong> ${lead.country}</p>
-  <p><strong>Аффилиат:</strong> ${lead.affiliate}</p>
-  <p><strong>Дата загрузки:</strong> ${lead.date}</p>
-`;
+  const comments = getComments();
+  const clientComments = comments.filter(c => c.clientId === clientId);
+  renderComments(clientComments);
 
-document.getElementById("statusSelect").value = lead.status;
+  commentButton.addEventListener("click", () => {
+    const text = commentInput.value.trim();
+    if (text) {
+      const newComment = {
+        clientId,
+        text,
+        author: user.email,
+        date: new Date().toLocaleString()
+      };
+      comments.push(newComment);
+      localStorage.setItem("comments", JSON.stringify(comments));
+      commentInput.value = "";
+      renderComments(comments.filter(c => c.clientId === clientId));
+    }
+  });
 
-function saveComment() {
-  const text = document.getElementById("commentText").value.trim();
-  if (!text) return alert("Комментарий пуст");
-  lead.comments.push({ date: new Date().toISOString().split("T")[0], text });
-  alert("Комментарий сохранён");
-  document.getElementById("commentText").value = "";
-}
+  function renderComments(list) {
+    commentBlock.innerHTML = list.map(c => `
+      <div class="comment">
+        <p><strong>${c.author}</strong> <span>${c.date}</span></p>
+        <p>${c.text}</p>
+      </div>
+    `).join("");
+  }
 
-function setReminder() {
-  const date = document.getElementById("reminderDate").value;
-  const text = document.getElementById("reminderComment").value.trim();
-  if (!date) return alert("Укажите дату");
-  lead.reminder = { date, text };
-  alert("Напоминание установлено");
-}
+  // Напоминание
+  const reminderDate = document.getElementById("reminderDate");
+  const reminderText = document.getElementById("reminderText");
+  const reminderButton = document.getElementById("reminderButton");
 
-document.getElementById("statusSelect").addEventListener("change", (e) => {
-  lead.status = e.target.value;
+  reminderButton.addEventListener("click", () => {
+    const reminders = getReminders();
+    reminders.push({
+      clientId,
+      manager: client.manager,
+      date: reminderDate.value,
+      comment: reminderText.value.trim()
+    });
+    localStorage.setItem("reminders", JSON.stringify(reminders));
+    alert("Напоминание установлено!");
+    reminderDate.value = "";
+    reminderText.value = "";
+  });
+
+  // Статус
+  const statusSelect = document.getElementById("statusSelect");
+  statusSelect.value = client.status || "";
+
+  statusSelect.addEventListener("change", () => {
+    const clients = getClients();
+    const target = clients.find(c => c.id === clientId);
+    target.status = statusSelect.value;
+    localStorage.setItem("clients", JSON.stringify(clients));
+    alert("Статус обновлён");
+  });
+
+  function getClients() {
+    return JSON.parse(localStorage.getItem("clients") || "[]");
+  }
+
+  function getReminders() {
+    return JSON.parse(localStorage.getItem("reminders") || "[]");
+  }
+
+  function getComments() {
+    return JSON.parse(localStorage.getItem("comments") || "[]");
+  }
 });

@@ -1,48 +1,54 @@
+<!-- client.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ColdiCRM — Клиент</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Карточка клиента</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <script src="js/auth.js"></script>
-  <script>
-    const user = requireAuth(["admin", "manager"]);
-  </script>
-  <script src="js/navbar.js"></script>
+  <header class="header">
+    <h1>Карточка клиента</h1>
+    <a href="leads.html" class="btn">← Назад</a>
+  </header>
 
-  <div class="container">
-    <h1 id="clientName">Клиент</h1>
+  <main class="client-card">
+    <section class="client-info">
+      <p><strong>Имя:</strong> <span id="clientName"></span></p>
+      <p><strong>Email:</strong> <span id="clientEmail"></span></p>
+      <p><strong>Телефон:</strong> <span id="clientPhone"></span></p>
+      <p><strong>Страна:</strong> <span id="clientCountry"></span></p>
+      <p><strong>Дата загрузки:</strong> <span id="clientDate"></span></p>
+      <p><strong>Аффилиат:</strong> <span id="clientAffiliate"></span></p>
+    </section>
 
-    <div class="client-info" id="clientInfo">
-      <!-- сюда загрузятся данные -->
-    </div>
+    <section class="client-actions">
+      <div>
+        <label>Комментарий:</label>
+        <textarea id="clientComment" rows="4" placeholder="Комментарий по клиенту"></textarea>
+      </div>
 
-    <div class="client-block">
-      <h2>Установить напоминание</h2>
-      <input type="date" id="reminderDate" />
-      <textarea id="reminderComment" placeholder="Комментарий..."></textarea>
-      <button onclick="setReminder()">Установить</button>
-    </div>
+      <div>
+        <label>Статус:</label>
+        <select id="clientStatus">
+          <option value="Новый">Новый</option>
+          <option value="В работе">В работе</option>
+          <option value="Конвертирован">Конвертирован</option>
+          <option value="Недозвон">Недозвон</option>
+          <option value="Отказ">Отказ</option>
+        </select>
+      </div>
 
-    <div class="client-block">
-      <h2>Комментарий</h2>
-      <textarea id="commentText" placeholder="Добавить комментарий..."></textarea>
-      <button onclick="saveComment()">Сохранить</button>
-    </div>
+      <div>
+        <label>Напоминание:</label>
+        <input type="date" id="reminderDate">
+        <input type="text" id="reminderComment" placeholder="Комментарий к напоминанию">
+      </div>
 
-    <div class="client-block">
-      <h2>Статус</h2>
-      <select id="statusSelect">
-        <option value="new">Новый</option>
-        <option value="in_work">В работе</option>
-        <option value="done">Сделка</option>
-      </select>
-    </div>
-  </div>
+      <button id="saveClient" class="btn">Сохранить</button>
+    </section>
+  </main>
 
-  <script src="js/client.js"></script>
+  <script src="client.js"></script>
 </body>
 </html>

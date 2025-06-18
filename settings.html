@@ -1,0 +1,31 @@
+<!-- settings.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Настройки</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/navbar.js" defer></script>
+  <script src="js/settings.js" defer></script>
+</head>
+<body>
+  <main class="container">
+    <h1>Управление пользователями</h1>
+    <form id="addUserForm" class="form">
+      <input type="email" id="newEmail" placeholder="Email" required />
+      <input type="password" id="newPassword" placeholder="Пароль" required />
+      <select id="newRole" required>
+        <option value="">Роль</option>
+        <option value="admin">Администратор</option>
+        <option value="manager">Менеджер</option>
+      </select>
+      <label><input type="checkbox" id="allowSettings" /> Доступ к настройкам</label>
+      <button type="submit">Добавить пользователя</button>
+    </form>
+
+    <h2>Список пользователей</h2>
+    <div id="userList" class="list"></div>
+  </main>
+</body>
+</html>

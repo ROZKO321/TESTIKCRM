@@ -1,158 +1,187 @@
 // leads.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user) return;
+  const leads = JSON.parse(localStorage.getItem("leads")) || [];
+  const container = document.getElementById("leadsContainer");
+  const pagination = document.getElementById("pagination");
 
-  const leadsContainer = document.getElementById("leadsContainer");
   const searchInput = document.getElementById("searchInput");
   const statusFilter = document.getElementById("statusFilter");
   const affiliateFilter = document.getElementById("affiliateFilter");
   const perPageSelect = document.getElementById("perPage");
-  const prevBtn = document.getElementById("prevPage");
-  const nextBtn = document.getElementById("nextPage");
-  const pageInfo = document.getElementById("pageInfo");
 
-  let allLeads = [];
-  let filteredLeads = [];
   let currentPage = 1;
 
-  function loadLeads() {
-    // Заменить этот блок на загрузку с сервера или базы
-    const raw = localStorage.getItem("leads") || "[]";
-    let leads = JSON.parse(raw);
-
-    // Менеджер видит только своих
-    if (user.role !== "admin") {
-      leads = leads.filter(lead => lead.manager === user.login);
-    }
-
-    allLeads = leads;
-    applyFilters();
-    populateFilters();
-  }
-
-  function applyFilters() {
-    const query = searchInput.value.toLowerCase();
-    const status = statusFilter.value;
-    const affiliate = affiliateFilter.value;
-
-    filteredLeads = allLeads.filter(lead => {
-      const matchText = [lead.name, lead.email, lead.phone].some(val =>
-        val.toLowerCase().includes(query)
-      );
-      const matchStatus = !status || lead.status === status;
-      const matchAff = !affiliate || lead.affiliate === affiliate;
-      return matchText && matchStatus && matchAff;
-    });
-
-    currentPage = 1;
-    renderLeads();
-  }
+  // Заполняем аффилиаты
+  const affiliates = [...new Set(leads.map(l => l.affiliate))];
+  affiliates.forEach(a => {
+    const opt = document.createElement("option");
+    opt.value = a;
+    opt.textContent = a;
+    affiliateFilter.appendChild(opt);
+  });
 
   function renderLeads() {
-    leadsContainer.innerHTML = "";
+    let filtered = leads.filter(l => {
+      if (user.role !== "admin" && l.manager !== user.email) return false;
+
+      const query = searchInput.value.toLowerCase();
+      const matchesSearch =
+        l.firstName.toLowerCase().includes(query) ||
+        l.lastName.toLowerCase().includes(query) ||
+        l.email.toLowerCase().includes(query) ||
+        l.phone.includes(query);
+
+      const statusMatch = !statusFilter.value || l.status === statusFilter.value;
+      const affMatch = !affiliateFilter.value || l.affiliate === affiliateFilter.value;
+
+      return matchesSearch && statusMatch && affMatch;
+    });
+
     const perPage = parseInt(perPageSelect.value);
+    const totalPages = Math.ceil(filtered.length / perPage);
     const start = (currentPage - 1) * perPage;
-    const end = start + perPage;
-    const pageLeads = filteredLeads.slice(start, end);
+    const pageItems = filtered.slice(start, start + perPage);
 
-    if (pageLeads.length === 0) {
-      leadsContainer.innerHTML = "<p>Нет лидов</p>";
-      pageInfo.textContent = "";
-      return;
-    }
-
-    pageLeads.forEach(lead => {
+    container.innerHTML = "";
+    pageItems.forEach(lead => {
       const card = document.createElement("div");
       card.className = "lead-card";
+
       card.innerHTML = `
         <div class="lead-left">
-          <p><strong>${lead.name}</strong></p>
+          <p><strong>${lead.firstName} ${lead.lastName}</strong></p>
           <p>${lead.phone}</p>
           <p>${lead.email}</p>
           <p>${lead.country}</p>
-          <p>Дата: ${lead.created || "-"}</p>
-          <p>Аффилиат: ${lead.affiliate || "-"}</p>
+          <p>Загружено: ${lead.createdAt}</p>
+          <p>Аффилиат: ${lead.affiliate}</p>
         </div>
+
         <div class="lead-right">
-          <div class="reminder-block">
-            <label>Напомнить:</label>
-            <input type="date" data-id="${lead.id}" class="reminder-date" value="${lead.reminderDate || ""}">
-            <textarea placeholder="Комментарий" data-id="${lead.id}" class="reminder-comment">${lead.reminderComment || ""}</textarea>
+          <div>
+            <label>Напоминание:</label>
+            <input type="date" value="${lead.reminderDate || ""}" data-id="${lead.id}" class="reminder-date">
+            <input type="text" placeholder="Комментарий" value="${lead.reminderComment || ""}" data-id="${lead.id}" class="reminder-comment">
           </div>
-          <div class="comment-block">
+          <div>
             <label>Комментарий:</label>
             <textarea data-id="${lead.id}" class="lead-comment">${lead.comment || ""}</textarea>
           </div>
-          <div class="status-block">
+          <div>
             <label>Статус:</label>
             <select data-id="${lead.id}" class="lead-status">
-              <option value="new" ${lead.status === "new" ? "selected" : ""}>Новый</option>
-              <option value="in_progress" ${lead.status === "in_progress" ? "selected" : ""}>В работе</option>
-              <option value="closed" ${lead.status === "closed" ? "selected" : ""}>Закрыт</option>
+              <option ${lead.status === "Новый" ? "selected" : ""}>Новый</option>
+              <option ${lead.status === "В работе" ? "selected" : ""}>В работе</option>
+              <option ${lead.status === "Успешно" ? "selected" : ""}>Успешно</option>
+              <option ${lead.status === "Отказ" ? "selected" : ""}>Отказ</option>
             </select>
           </div>
         </div>
       `;
-      leadsContainer.appendChild(card);
+      container.appendChild(card);
     });
 
-    const totalPages = Math.ceil(filteredLeads.length / perPage);
-    pageInfo.textContent = `Страница ${currentPage} из ${totalPages}`;
-    prevBtn.disabled = currentPage === 1;
-    nextBtn.disabled = currentPage === totalPages;
+    renderPagination(totalPages);
+    bindEvents();
   }
 
-  function populateFilters() {
-    const statuses = [...new Set(allLeads.map(l => l.status))];
-    const affiliates = [...new Set(allLeads.map(l => l.affiliate))];
-
-    statusFilter.innerHTML = '<option value="">Все статусы</option>' +
-      statuses.map(s => `<option value="${s}">${s}</option>`).join("");
-
-    affiliateFilter.innerHTML = '<option value="">Все аффилиаты</option>' +
-      affiliates.map(a => `<option value="${a}">${a}</option>`).join("");
+  function renderPagination(totalPages) {
+    pagination.innerHTML = "";
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = i === currentPage ? "active" : "";
+      btn.addEventListener("click", () => {
+        currentPage = i;
+        renderLeads();
+      });
+      pagination.appendChild(btn);
+    }
   }
 
-  // События
-  searchInput.addEventListener("input", applyFilters);
-  statusFilter.addEventListener("change", applyFilters);
-  affiliateFilter.addEventListener("change", applyFilters);
-  perPageSelect.addEventListener("change", renderLeads);
-  prevBtn.addEventListener("click", () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderLeads();
+  function bindEvents() {
+    document.querySelectorAll(".reminder-date").forEach(input => {
+      input.addEventListener("change", e => {
+        const id = input.dataset.id;
+        updateLead(id, "reminderDate", e.target.value);
+      });
+    });
+
+    document.querySelectorAll(".reminder-comment").forEach(input => {
+      input.addEventListener("change", e => {
+        const id = input.dataset.id;
+        updateLead(id, "reminderComment", e.target.value);
+      });
+    });
+
+    document.querySelectorAll(".lead-comment").forEach(textarea => {
+      textarea.addEventListener("change", e => {
+        const id = textarea.dataset.id;
+        updateLead(id, "comment", e.target.value);
+      });
+    });
+
+    document.querySelectorAll(".lead-status").forEach(select => {
+      select.addEventListener("change", e => {
+        const id = select.dataset.id;
+        updateLead(id, "status", e.target.value);
+      });
+    });
+  }
+
+  function updateLead(id, field, value) {
+    const idx = leads.findIndex(l => l.id === id);
+    if (idx === -1) return;
+    leads[idx][field] = value;
+    localStorage.setItem("leads", JSON.stringify(leads));
+
+    // Обновим reminders
+    const reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+    const lead = leads[idx];
+
+    const rIdx = reminders.findIndex(r => r.clientId === id);
+    const newReminder = {
+      clientId: id,
+      name: lead.firstName + " " + lead.lastName,
+      date: lead.reminderDate || null,
+      comment: lead.reminderComment || lead.comment || "",
+      createdBy: lead.manager,
+    };
+
+    if (newReminder.date) {
+      if (rIdx >= 0) {
+        reminders[rIdx] = newReminder;
+      } else {
+        reminders.push(newReminder);
+      }
+    } else {
+      if (rIdx >= 0) reminders.splice(rIdx, 1);
     }
-  });
-  nextBtn.addEventListener("click", () => {
-    const totalPages = Math.ceil(filteredLeads.length / parseInt(perPageSelect.value));
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderLeads();
-    }
-  });
 
-  // Авто-сохранение
-  leadsContainer.addEventListener("change", (e) => {
-    const id = e.target.dataset.id;
-    const type = e.target.className;
+    localStorage.setItem("reminders", JSON.stringify(reminders));
+  }
 
-    const lead = allLeads.find(l => l.id === id);
-    if (!lead) return;
-
-    if (type.includes("reminder-date")) {
-      lead.reminderDate = e.target.value;
-    } else if (type.includes("reminder-comment")) {
-      lead.reminderComment = e.target.value;
-    } else if (type.includes("lead-comment")) {
-      lead.comment = e.target.value;
-    } else if (type.includes("lead-status")) {
-      lead.status = e.target.value;
-    }
-
-    localStorage.setItem("leads", JSON.stringify(allLeads));
+  searchInput.addEventListener("input", () => {
+    currentPage = 1;
+    renderLeads();
   });
 
-  loadLeads();
+  statusFilter.addEventListener("change", () => {
+    currentPage = 1;
+    renderLeads();
+  });
+
+  affiliateFilter.addEventListener("change", () => {
+    currentPage = 1;
+    renderLeads();
+  });
+
+  perPageSelect.addEventListener("change", () => {
+    currentPage = 1;
+    renderLeads();
+  });
+
+  renderLeads();
 });

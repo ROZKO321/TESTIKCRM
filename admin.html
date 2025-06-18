@@ -1,43 +1,39 @@
+<!-- admin.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ColdiCRM — Админ-панель</title>
+  <title>Панель администратора</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <script src="js/auth.js"></script>
-  <script>
-    const user = requireAuth(["admin"]);
-  </script>
-  <script src="js/navbar.js"></script>
+  <script src="js/navbar.js" defer></script>
+  <script src="js/admin.js" defer></script>
 
-  <div class="container">
-    <h1>Админ-панель</h1>
+  <main class="container">
+    <h1>Панель администратора</h1>
 
-    <section>
-      <h2>Загрузка CSV</h2>
+    <section class="admin-block">
+      <h2>Загрузить CSV с лидами</h2>
       <input type="file" id="csvInput" accept=".csv" />
-      <button onclick="importCSV()">Импортировать</button>
+      <button id="importBtn">Загрузить</button>
     </section>
 
-    <section>
-      <h2>Назначение менеджеров</h2>
-      <div id="assignList"></div>
+    <section class="admin-block">
+      <h2>Экспорт всех лидов</h2>
+      <button id="exportBtn">Экспорт CSV</button>
     </section>
 
-    <section>
-      <h2>Экспорт лидов</h2>
-      <button onclick="exportCSV()">Экспорт в CSV</button>
+    <section class="admin-block">
+      <h2>Назначить менеджеров</h2>
+      <div id="assignContainer"></div>
     </section>
 
-    <section>
-      <h2>Логи</h2>
-      <div id="logList" class="logs"></div>
+    <section class="admin-block">
+      <h2>Логи входа</h2>
+      <div id="logsContainer" class="logs"></div>
     </section>
-  </div>
-
-  <script src="js/admin.js"></script>
+  </main>
 </body>
 </html>
