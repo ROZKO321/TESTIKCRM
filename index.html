@@ -3,82 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coldi CRM — Вход</title>
+  <title>Coldi CRM — Главная</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
 </head>
-<body class="login-body">
-  <div class="login-container">
-    <div class="login-box">
-      <div class="welcome-title">Добро пожаловать в Coldi CRM</div>
-      <div class="motivation">Сегодня — лучший день для новых достижений.</div>
+<body>
+  <div class="page-wrapper">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="img/logo.svg" alt="Logo" />
+        <span>Coldi CRM</span>
+      </div>
+      <nav class="menu">
+        <a href="index.html" class="active">Главная</a>
+        <a href="leads.html">Лиды</a>
+        <a href="notifications.html">Напоминания</a>
+        <a href="admin.html" id="adminLink">Админ</a>
+        <a href="#" class="logout-link" onclick="logout()">Выход</a>
+      </nav>
+    </aside>
 
-      <form onsubmit="return login(event)">
-        <input type="text" id="username" placeholder="Имя пользователя" required />
-        <input type="password" id="password" placeholder="Пароль" required />
-        <button type="submit">Войти</button>
-      </form>
-    </div>
+    <main class="main-content">
+      <div class="topbar">
+        <div class="greeting" id="greeting">Здравствуйте!</div>
+        <div id="notificationIcon" class="notification-icon">
+          <img src="img/bell.svg" alt="🔔" />
+          <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
+        </div>
+      </div>
+
+      <section class="welcome-box">
+        <h1>Добро пожаловать в Coldi CRM</h1>
+        <p>День без клиента — день без роста.</p>
+      </section>
+    </main>
   </div>
 
-  <canvas id="backgroundCanvas"></canvas>
-
+  <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
   <script>
-    // Пример входа
-    function login(event) {
-      event.preventDefault();
-      const user = document.getElementById("username").value.trim();
-      const pass = document.getElementById("password").value.trim();
+    const role = localStorage.getItem("role") || "manager";
+    const user = localStorage.getItem("user") || "Менеджер";
+    document.getElementById("greeting").textContent = `Здравствуйте, ${role === "admin" ? "Администратор" : user}!`;
 
-      if ((user === "admin" || user === "manager") && pass === "123") {
-        localStorage.setItem("user", user);
-        localStorage.setItem("role", user === "admin" ? "admin" : "manager");
-        window.location.href = "home.html";
-      } else {
-        alert("Неверные данные для входа");
-      }
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
     }
-
-    // Динамичный фон (по желанию можно отключить)
-    const canvas = document.getElementById("backgroundCanvas");
-    const ctx = canvas.getContext("2d");
-    let w, h, particles;
-
-    function resizeCanvas() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-      initParticles();
-    }
-
-    function initParticles() {
-      particles = Array.from({ length: 50 }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: (Math.random() - 0.5) * 0.8,
-        radius: Math.random() * 2 + 1
-      }));
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, w, h);
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#93c5fd";
-        ctx.fill();
-      });
-      requestAnimationFrame(animate);
-    }
-
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
-    animate();
   </script>
+  <script src="js/reminder.js"></script>
 </body>
 </html>

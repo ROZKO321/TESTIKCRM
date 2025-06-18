@@ -1,136 +1,130 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const leadList = document.getElementById("leadList");
+  const pagination = document.getElementById("pagination");
+
   const searchInput = document.getElementById("searchInput");
   const statusFilter = document.getElementById("statusFilter");
   const affiliateFilter = document.getElementById("affiliateFilter");
-  const limitSelect = document.getElementById("limitSelect");
-  const pagination = document.getElementById("pagination");
-  const leadList = document.getElementById("leadList");
+  const perPageSelect = document.getElementById("perPage");
 
-  const role = localStorage.getItem("role") || "admin";
+  const role = localStorage.getItem("role") || "manager";
   const currentUser = localStorage.getItem("user") || "manager1";
 
-  const allLeads = JSON.parse(localStorage.getItem("crmClients") || "[]");
-
+  let leads = JSON.parse(localStorage.getItem("leads") || "[]");
   let filteredLeads = [];
   let currentPage = 1;
-  let leadsPerPage = parseInt(limitSelect.value);
+  let perPage = parseInt(perPageSelect.value);
 
   function filterLeads() {
-    const search = searchInput.value.toLowerCase();
+    const search = searchInput.value.trim().toLowerCase();
     const status = statusFilter.value;
     const affiliate = affiliateFilter.value;
 
-    filteredLeads = allLeads.filter(lead => {
+    filteredLeads = leads.filter((lead) => {
+      const belongsToUser = role === "admin" || lead.manager === currentUser;
+      if (!belongsToUser) return false;
+
       const matchesSearch =
         lead.firstName.toLowerCase().includes(search) ||
         lead.lastName.toLowerCase().includes(search) ||
         lead.email.toLowerCase().includes(search) ||
-        lead.phone.toLowerCase().includes(search);
+        lead.phone.includes(search);
 
-      const matchesStatus = status ? lead.status === status : true;
-      const matchesAffiliate = affiliate ? lead.affiliate === affiliate : true;
-      const matchesManager = role === "admin" ? true : lead.manager === currentUser;
+      const matchesStatus = !status || lead.status === status;
+      const matchesAffiliate = !affiliate || lead.affiliate === affiliate;
 
-      return matchesSearch && matchesStatus && matchesAffiliate && matchesManager;
+      return matchesSearch && matchesStatus && matchesAffiliate;
     });
 
     currentPage = 1;
     renderLeads();
+    renderPagination();
   }
 
   function renderLeads() {
     leadList.innerHTML = "";
-    const start = (currentPage - 1) * leadsPerPage;
-    const end = start + leadsPerPage;
-    const leadsToShow = filteredLeads.slice(start, end);
 
-    if (leadsToShow.length === 0) {
-      leadList.innerHTML = "<div class='empty-state'>Ничего не найдено</div>";
-      pagination.innerHTML = "";
+    if (filteredLeads.length === 0) {
+      leadList.innerHTML = `<div class="empty-state">Нет лидов по заданным параметрам</div>`;
       return;
     }
 
-    leadsToShow.forEach(lead => {
-      const card = document.createElement("div");
-      card.className = "lead-card";
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    const pageLeads = filteredLeads.slice(start, end);
 
-      const left = document.createElement("div");
-      left.className = "lead-left";
+    pageLeads.forEach((lead) => {
+      const leadCard = document.createElement("div");
+      leadCard.className = "lead-card";
 
-      const name = document.createElement("div");
-      name.className = "lead-name";
-      name.textContent = `${lead.firstName} ${lead.lastName}`;
-      name.onclick = () => {
-        window.open(`client.html?id=${lead.id}`, "_blank");
-      };
+      leadCard.innerHTML = `
+        <div class="lead-left">
+          <a href="client.html?id=${lead.id}" class="lead-name" target="_blank">${lead.firstName} ${lead.lastName}</a>
+          <div class="lead-phone">${lead.phone}</div>
+          <div class="lead-email">${lead.email}</div>
+        </div>
+        <div class="lead-right">
+          <div class="lead-status" data-status="${lead.status}">${getStatusLabel(lead.status)}</div>
+          <div class="lead-affiliate">${lead.affiliate || "Без аффилиата"}</div>
+          <div class="lead-comment">💬 ${lead.comment || "Комментарий отсутствует"}</div>
+        </div>
+      `;
 
-      const phone = document.createElement("div");
-      phone.className = "lead-phone";
-      phone.textContent = lead.phone;
-
-      const email = document.createElement("div");
-      email.className = "lead-email";
-      email.textContent = lead.email;
-
-      const comment = document.createElement("div");
-      comment.className = "lead-comment";
-      comment.textContent = lead.comment || "Комментариев пока нет";
-
-      left.append(name, phone, email, comment);
-
-      const right = document.createElement("div");
-      right.className = "lead-right";
-
-      const status = document.createElement("div");
-      status.className = "lead-status";
-      status.dataset.status = lead.status;
-      status.textContent =
-        lead.status === "new"
-          ? "Новый"
-          : lead.status === "in-progress"
-          ? "В работе"
-          : "Закрыт";
-
-      const affiliate = document.createElement("div");
-      affiliate.className = "lead-affiliate";
-      affiliate.textContent = lead.affiliate;
-
-      right.append(status, affiliate);
-      card.append(left, right);
-      leadList.appendChild(card);
+      leadList.appendChild(leadCard);
     });
+  }
 
-    renderPagination();
+  function getStatusLabel(status) {
+    switch (status) {
+      case "new": return "Новый";
+      case "in-progress": return "В работе";
+      case "closed": return "Закрыт";
+      default: return "—";
+    }
   }
 
   function renderPagination() {
-    const totalPages = Math.ceil(filteredLeads.length / leadsPerPage);
     pagination.innerHTML = "";
+    const pages = Math.ceil(filteredLeads.length / perPage);
+    if (pages <= 1) return;
 
-    if (totalPages <= 1) return;
-
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 1; i <= pages; i++) {
       const btn = document.createElement("button");
       btn.textContent = i;
-      btn.className = i === currentPage ? "active" : "";
-      btn.onclick = () => {
+      if (i === currentPage) btn.classList.add("active");
+      btn.addEventListener("click", () => {
         currentPage = i;
         renderLeads();
-      };
+        renderPagination();
+      });
       pagination.appendChild(btn);
     }
+  }
+
+  function populateAffiliateFilter() {
+    const affiliates = new Set();
+    leads.forEach((lead) => {
+      if (lead.affiliate) affiliates.add(lead.affiliate);
+    });
+
+    affiliateFilter.innerHTML = `<option value="">Все аффилиаты</option>`;
+    [...affiliates].sort().forEach((a) => {
+      affiliateFilter.innerHTML += `<option value="${a}">${a}</option>`;
+    });
   }
 
   // Слушатели
   searchInput.addEventListener("input", filterLeads);
   statusFilter.addEventListener("change", filterLeads);
   affiliateFilter.addEventListener("change", filterLeads);
-  limitSelect.addEventListener("change", () => {
-    leadsPerPage = parseInt(limitSelect.value);
+  perPageSelect.addEventListener("change", () => {
+    perPage = parseInt(perPageSelect.value);
     currentPage = 1;
     renderLeads();
+    renderPagination();
   });
 
   // Инициализация
+  populateAffiliateFilter();
   filterLeads();
 });
