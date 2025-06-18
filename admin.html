@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ColdiCRM — Админ-панель</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <script src="js/auth.js"></script>
+  <script>
+    const user = requireAuth(["admin"]);
+  </script>
+  <script src="js/navbar.js"></script>
+
+  <div class="container">
+    <h1>Админ-панель</h1>
+
+    <section>
+      <h2>Загрузка CSV</h2>
+      <input type="file" id="csvInput" accept=".csv" />
+      <button onclick="importCSV()">Импортировать</button>
+    </section>
+
+    <section>
+      <h2>Назначение менеджеров</h2>
+      <div id="assignList"></div>
+    </section>
+
+    <section>
+      <h2>Экспорт лидов</h2>
+      <button onclick="exportCSV()">Экспорт в CSV</button>
+    </section>
+
+    <section>
+      <h2>Логи</h2>
+      <div id="logList" class="logs"></div>
+    </section>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

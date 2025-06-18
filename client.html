@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ColdiCRM — Клиент</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <script src="js/auth.js"></script>
+  <script>
+    const user = requireAuth(["admin", "manager"]);
+  </script>
+  <script src="js/navbar.js"></script>
+
+  <div class="container">
+    <h1 id="clientName">Клиент</h1>
+
+    <div class="client-info" id="clientInfo">
+      <!-- сюда загрузятся данные -->
+    </div>
+
+    <div class="client-block">
+      <h2>Установить напоминание</h2>
+      <input type="date" id="reminderDate" />
+      <textarea id="reminderComment" placeholder="Комментарий..."></textarea>
+      <button onclick="setReminder()">Установить</button>
+    </div>
+
+    <div class="client-block">
+      <h2>Комментарий</h2>
+      <textarea id="commentText" placeholder="Добавить комментарий..."></textarea>
+      <button onclick="saveComment()">Сохранить</button>
+    </div>
+
+    <div class="client-block">
+      <h2>Статус</h2>
+      <select id="statusSelect">
+        <option value="new">Новый</option>
+        <option value="in_work">В работе</option>
+        <option value="done">Сделка</option>
+      </select>
+    </div>
+  </div>
+
+  <script src="js/client.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ColdiCRM — Напоминания</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <script src="js/auth.js"></script>
+  <script>
+    const user = requireAuth(["admin", "manager"]);
+  </script>
+  <script src="js/navbar.js"></script>
+
+  <div class="container">
+    <h1>Напоминания</h1>
+    <div id="reminderList" class="reminders"></div>
+  </div>
+
+  <script src="js/reminder.js"></script>
+</body>
+</html>
