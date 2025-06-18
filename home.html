@@ -1,96 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CRM Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" />
+  <title>Coldi CRM — Главная</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="dashboard-body">
-
-  <div class="sidebar">
-    <div class="logo">CRM</div>
-    <nav>
-      <ul>
-        <li class="nav-item active"><i class="fas fa-home"></i><span>Home</span></li>
-        <li class="nav-item"><i class="fas fa-user-friends"></i><span>Leads</span></li>
-        <li class="nav-item"><i class="fas fa-cogs"></i><span>Admin</span></li>
-        <li class="nav-item logout"><i class="fas fa-sign-out-alt"></i><span>Logout</span></li>
-      </ul>
-    </nav>
+<body>
+  <div class="sidebar" id="sidebar">
+    <div class="logo">
+      <img src="img/logo.svg" alt="Logo" />
+      Coldi
+    </div>
+    <div class="menu">
+      <a href="home.html" class="active"><i class="lucide lucide-home"></i> Главная</a>
+      <a href="leads.html"><i class="lucide lucide-users"></i> Лиды</a>
+      <a href="notifications.html"><i class="lucide lucide-bell"></i> Напоминания</a>
+      <a href="admin.html" id="adminPanelLink"><i class="lucide lucide-settings"></i> Админ</a>
+      <a href="#" onclick="logout()" class="logout-link">🚪 Выход</a>
+    </div>
   </div>
 
-  <div class="main">
-    <header class="main-header">
-      <div class="welcome-text">
-        <h1>Welcome back, <span id="username-display">Manager</span>!</h1>
-        <p>Have a productive day.</p>
-      </div>
-      <div class="header-icons">
-
-        <!-- ✅ Колокольчик с напоминаниями -->
-        <div class="notifications">
-          <button id="bellButton">
-            <img src="img/bell.svg" alt="Reminders" />
-          </button>
-          <div id="reminderList" class="reminder-dropdown hidden">
-            <h4>Reminders</h4>
-            <ul id="reminderItems"></ul>
-            <p class="no-reminders">No reminders</p>
-          </div>
+  <div class="topbar">
+    <button id="toggleSidebar" class="menu-toggle"><i class="lucide lucide-menu"></i></button>
+    <div class="topbar-right">
+      <div id="notificationBell" class="bell">
+        <i class="lucide lucide-bell"></i>
+        <div class="notification-popup" id="notificationPopup">
+          <p class="empty">Пока здесь пусто...</p>
         </div>
-
-        <select id="lang-select" onchange="translatePage(this.value)">
-          <option value="en">EN</option>
-          <option value="ru">RU</option>
-        </select>
       </div>
-    </header>
-
-    <main class="main-content">
-      <div class="dashboard-info">
-        <p>This is your CRM dashboard. Use the side menu to navigate.</p>
-      </div>
-    </main>
+    </div>
   </div>
 
-  <script src="translations.js"></script>
+  <div class="content">
+    <div class="welcome-box">
+      <h1 id="welcomeText">Добро пожаловать в Coldi CRM</h1>
+      <p id="mottoText">Пусть день будет продуктивным!</p>
+    </div>
+  </div>
+
   <script>
-    // Перевод
-    const langSelect = document.getElementById("lang-select");
-    translatePage(langSelect.value);
-
-    // ✅ Логика колокольчика
-    const bellButton = document.getElementById("bellButton");
-    const reminderDropdown = document.getElementById("reminderList");
-    const reminderItems = document.getElementById("reminderItems");
-    const noRemindersText = document.querySelector(".no-reminders");
-
-    if (bellButton && reminderDropdown && reminderItems && noRemindersText) {
-      bellButton.addEventListener("click", () => {
-        reminderDropdown.classList.toggle("hidden");
-        reminderItems.innerHTML = "";
-
-        const reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
-
-        if (reminders.length === 0) {
-          noRemindersText.style.display = "block";
-          return;
-        }
-
-        noRemindersText.style.display = "none";
-
-        reminders.forEach(rem => {
-          const li = document.createElement("li");
-          const link = document.createElement("a");
-          link.href = `client-card.html?id=${rem.id}`;
-          link.textContent = `${rem.name} — ${rem.date}${rem.comment ? ` (${rem.comment})` : ""}`;
-          li.appendChild(link);
-          reminderItems.appendChild(li);
-        });
-      });
+    // Проверка роли
+    const role = localStorage.getItem("role");
+    if (!role) {
+      window.location.href = "index.html";
     }
+
+    // Панель админа
+    const adminPanel = document.getElementById("adminPanelLink");
+    if (role !== "admin") {
+      adminPanel.style.display = "none";
+    }
+
+    // Приветствие + мотивация
+    const phrases = [
+      "Каждый звонок — шаг к успеху!",
+      "Улыбка слышна даже по телефону.",
+      "CRM — ваш ключ к победе!",
+      "Будь на шаг впереди конкурентов.",
+      "Сегодня — лучший день для новых достижений.",
+      "Хорошее начало — полдела.",
+      "Продажи начинаются с веры в себя."
+    ];
+    const greeting = document.getElementById("welcomeText");
+    const motto = document.getElementById("mottoText");
+
+    greeting.textContent = "Добро пожаловать в Coldi CRM";
+    motto.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+
+    // Скрытие/открытие боковой панели
+    document.getElementById("toggleSidebar").onclick = () => {
+      document.getElementById("sidebar").classList.toggle("collapsed");
+    };
+
+    // Logout
+    function logout() {
+      localStorage.removeItem("role");
+      window.location.href = "index.html";
+    }
+
+    lucide.createIcons();
   </script>
+<!-- Уведомления -->
+<div id="notificationIcon" class="notification-icon">
+  <img src="img/bell.svg" alt="🔔" />
+  <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
+</div>
+
+<div id="notificationPopup" class="notification-popup" style="display: none;"></div>
+
+<script src="js/reminder.js"></script>
+
 </body>
 </html>

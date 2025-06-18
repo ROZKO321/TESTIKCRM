@@ -1,108 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Coldi CRM — Leads</title>
+  <title>База лидов</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
-  <script src="js/leads.js" defer></script>
 </head>
 <body>
-  <div class="main-layout">
-    <aside class="sidebar">
-      <img src="img/logo.svg" alt="Coldi CRM" class="logo-side" />
-      <nav>
-        <a href="home.html">🏠 Home</a>
-        <a href="leads.html" class="active">📞 Leads</a>
-        <a href="admin.html" id="settingsLink">⚙️ Settings</a>
-        <button id="logout" class="logout-btn">🚪 Logout</button>
-      </nav>
-    </aside>
-
-    <main class="content">
-      <header class="topbar">
-        <div class="topbar-header">
-          <h1>📋 Leads</h1>
-
-          <!-- 🔔 КОЛОКОЛЬЧИК -->
-          <div class="notifications">
-            <button id="bellButton">
-              <i class="fas fa-bell"></i>
-            </button>
-            <div id="reminderList" class="reminder-dropdown hidden">
-              <h4>Reminders</h4>
-              <ul id="reminderItems"></ul>
-              <p class="no-reminders">No reminders</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="top-controls">
-          <input type="text" id="searchInput" placeholder="Search by name, email or phone..." />
-          <select id="statusFilter">
-            <option value="">All Statuses</option>
-            <option value="new">New</option>
-            <option value="no answer">No Answer</option>
-            <option value="never answer">Never Answer</option>
-            <option value="no interested">No Interested</option>
-            <option value="send mail">Send Mail</option>
-            <option value="call back">Call Back</option>
-            <option value="in work">In Work</option>
-            <option value="deposit">Deposit</option>
-            <option value="no potential">No Potential</option>
-            <option value="murzilka">Murzilka</option>
-          </select>
-          <select id="affiliateFilter">
-            <option value="">All Affiliates</option>
-            <!-- JS подгрузит -->
-          </select>
-        </div>
-      </header>
-
-      <section class="leads-list" id="leadsContainer">
-        <!-- JS отрисует сюда -->
-      </section>
-
-      <footer class="pagination" id="paginationControls">
-        <!-- Пагинация -->
-      </footer>
-    </main>
+  <div class="sidebar">
+    <div class="logo"><img src="img/logo.svg" alt="Logo" /> Coldi CRM</div>
+    <a href="home.html">Главная</a>
+    <a class="active" href="leads.html">Лиды</a>
+    <a href="notifications.html">Напоминания</a>
+    <a href="admin.html" id="adminMenu" style="display: none;">Настройки</a>
+    <a href="#" onclick="logout()" class="exit-link">Выход</a>
   </div>
 
-  <div id="reminderToast" class="reminder-toast hidden"></div>
+  <div class="main">
+    <div class="topbar">
+      <div id="greeting">Здравствуйте!</div>
+      <div id="notificationIcon" class="notification-icon">
+        <img src="img/bell.svg" alt="🔔" />
+        <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
+      </div>
+    </div>
 
-  <!-- ✅ JS для колокольчика -->
-  <script>
-    const bellButton = document.getElementById("bellButton");
-    const reminderDropdown = document.getElementById("reminderList");
-    const reminderItems = document.getElementById("reminderItems");
-    const noRemindersText = document.querySelector(".no-reminders");
+    <div class="content">
+      <h2>База лидов</h2>
 
-    if (bellButton && reminderDropdown && reminderItems && noRemindersText) {
-      bellButton.addEventListener("click", () => {
-        reminderDropdown.classList.toggle("hidden");
-        reminderItems.innerHTML = "";
+      <div class="filter-bar">
+        <input type="text" id="search" placeholder="Поиск по имени, email или телефону" />
+        <select id="statusFilter">
+          <option value="">Все статусы</option>
+          <option value="new">Новый</option>
+          <option value="in-progress">В работе</option>
+          <option value="closed">Закрыт</option>
+        </select>
+        <select id="affiliateFilter">
+          <option value="">Все аффилиаты</option>
+          <option value="partnerA">Партнёр A</option>
+          <option value="partnerB">Партнёр B</option>
+        </select>
+        <select id="limitSelect">
+          <option value="10">Показать 10</option>
+          <option value="20">Показать 20</option>
+          <option value="30" selected>Показать 30</option>
+          <option value="50">Показать 50</option>
+          <option value="100">Показать 100</option>
+        </select>
+      </div>
 
-        const reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
+      <div id="leadList" class="lead-list"></div>
+    </div>
+  </div>
 
-        if (reminders.length === 0) {
-          noRemindersText.style.display = "block";
-          return;
-        }
-
-        noRemindersText.style.display = "none";
-
-        reminders.forEach(rem => {
-          const li = document.createElement("li");
-          const link = document.createElement("a");
-          link.href = `client-card.html?id=${rem.id}`;
-          link.textContent = `${rem.name} — ${rem.date}${rem.comment ? ` (${rem.comment})` : ""}`;
-          li.appendChild(link);
-          reminderItems.appendChild(li);
-        });
-      });
-    }
-  </script>
+  <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
+  <script src="js/leads.js"></script>
+  <script src="js/reminder.js"></script>
 </body>
 </html>

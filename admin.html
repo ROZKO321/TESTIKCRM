@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Админ-панель | Coldi CRM</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="img/logo.svg" alt="Logo" />
+      <span>Coldi CRM</span>
+    </div>
+    <div class="menu">
+      <a href="home.html">Главная</a>
+      <a href="leads.html">Лиды</a>
+      <a href="notifications.html">Напоминания</a>
+      <a href="admin.html" class="active">Настройки</a>
+      <a href="#" onclick="logout()" class="logout-link">Выход</a>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <div class="greeting" id="greetingText">Здравствуйте, администратор!</div>
+  </div>
+
+  <div class="content">
+    <h2>Админ-панель</h2>
+    <p>Вы можете создать тестовые данные или управлять аккаунтами менеджеров.</p>
+
+    <button id="generateClients" class="btn-generate">Создать тестовых клиентов</button>
+  </div>
+
+  <!-- Кнопка и JS -->
+  <script>
+    function logout() {
+      localStorage.removeItem("role");
+      localStorage.removeItem("user");
+      window.location.href = "index.html";
+    }
+<button id="generateClients" class="btn-generate">Создать тестовых клиентов</button>
+
+    document.getElementById("generateClients").addEventListener("click", () => {
+      const sampleLeads = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        firstName: `Имя${i + 1}`,
+        lastName: `Фамилия${i + 1}`,
+        phone: `+38063${Math.floor(1000000 + Math.random() * 8999999)}`,
+        email: `user${i + 1}@example.com`,
+        status: ["new", "in-progress", "closed"][i % 3],
+        affiliate: ["partnerA", "partnerB"][i % 2],
+        manager: i % 2 === 0 ? "manager1" : "manager2",
+        comment: `Комментарий к клиенту #${i + 1}`,
+        reminder: "",
+        country: "Украина"
+      }));
+
+      localStorage.setItem("crmClients", JSON.stringify(sampleLeads));
+      alert("Тестовые клиенты успешно созданы!");
+    });
+  </script>
+<script>
+document.getElementById("generateClients").addEventListener("click", () => {
+  const sampleLeads = Array.from({ length: 20 }, (_, i) => ({
+    id: i + 1,
+    firstName: `Имя${i + 1}`,
+    lastName: `Фамилия${i + 1}`,
+    phone: `+38063${Math.floor(1000000 + Math.random() * 8999999)}`,
+    email: `user${i + 1}@example.com`,
+    status: ["new", "in-progress", "closed"][i % 3],
+    affiliate: ["partnerA", "partnerB"][i % 2],
+    manager: i % 2 === 0 ? "manager1" : "manager2",
+    comment: `Комментарий к клиенту #${i + 1}`,
+    reminder: "",
+    country: "Украина"
+  }));
+
+  localStorage.setItem("crmClients", JSON.stringify(sampleLeads));
+  alert("Тестовые клиенты успешно созданы!");
+});
+</script>
+
+</body>
+</html>
