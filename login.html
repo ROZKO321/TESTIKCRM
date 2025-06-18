@@ -1,36 +1,27 @@
+<!-- login.html — финальная версия -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Вход — ColdiCRM</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="login-container">
-    <h1>ColdiCRM</h1>
-    <input type="text" id="login" placeholder="Логин" />
-    <input type="password" id="password" placeholder="Пароль" />
-    <button onclick="login()">Войти</button>
+  <div class="container" style="max-width: 400px; margin-top: 80px;">
+    <h1 style="text-align: center;">ColdiCRM</h1>
+    <form id="loginForm">
+      <label for="username">Логин</label>
+      <input type="text" id="username" placeholder="Введите логин" required />
+
+      <label for="password">Пароль</label>
+      <input type="password" id="password" placeholder="Введите пароль" required />
+
+      <button type="submit" style="margin-top: 15px;">Войти</button>
+    </form>
+    <p id="error" style="color: red; margin-top: 15px; display: none;">Неверный логин или пароль</p>
   </div>
 
-  <script>
-    const users = [
-      { id: 1, login: "admin", pass: "admin123", role: "admin", name: "Администратор" },
-      { id: 2, login: "igor", pass: "1234", role: "manager", name: "Игорь Менеджер" },
-      { id: 3, login: "lena", pass: "5678", role: "manager", name: "Лена Менеджер" }
-    ];
-
-    function login() {
-      const login = document.getElementById("login").value.trim();
-      const pass = document.getElementById("password").value.trim();
-      const user = users.find(u => u.login === login && u.pass === pass);
-
-      if (!user) return alert("Неверный логин или пароль");
-
-      localStorage.setItem("user", JSON.stringify(user));
-      location.href = "index.html";
-    }
-  </script>
+  <script src="auth.js"></script>
 </body>
 </html>

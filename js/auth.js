@@ -1,28 +1,42 @@
-// js/auth.js — авторизация и роли
+// auth.js — логика авторизации
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("loginForm");
+  if (!form) return;
 
-const users = [
-  { id: 1, login: "admin", pass: "admin123", role: "admin", name: "Администратор" },
-  { id: 2, login: "igor", pass: "1234", role: "manager", name: "Игорь Менеджер" },
-  { id: 3, login: "lena", pass: "5678", role: "manager", name: "Лена Менеджер" }
-];
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-function requireAuth(roles = []) {
-  const stored = localStorage.getItem("user");
-  if (!stored) {
-    window.location.href = "login.html";
-    throw new Error("Not authorized");
-  }
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const error = document.getElementById("error");
 
-  const user = JSON.parse(stored);
-  if (roles.length && !roles.includes(user.role)) {
-    document.body.innerHTML = "<div class='container'><h2>Доступ запрещён</h2></div>";
-    throw new Error("Forbidden");
-  }
+    // Примитивные тестовые пользователи
+    const users = [
+      {
+        username: "admin",
+        password: "admin123",
+        role: "admin",
+        email: "admin@coldicrm.com",
+        allowSettings: true
+      },
+      {
+        username: "manager",
+        password: "manager123",
+        role: "manager",
+        email: "manager@coldicrm.com",
+        allowSettings: false
+      }
+    ];
 
-  return user;
-}
+    const foundUser = users.find(
+      (u) => u.username === username && u.password === password
+    );
 
-function logout() {
-  localStorage.removeItem("user");
-  window.location.href = "login.html";
-}
+    if (foundUser) {
+      localStorage.setItem("user", JSON.stringify(foundUser));
+      window.location.href = "leads.html";
+    } else {
+      error.style.display = "block";
+    }
+  });
+});
