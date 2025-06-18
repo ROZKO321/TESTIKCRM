@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Вход в Coldi CRM</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f7f9fc;
+      font-family: "Segoe UI", sans-serif;
+    }
+    .login-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-container h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .login-container input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 0.75rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .login-container button:hover {
+      background: #0056b3;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>Вход в CRM</h1>
+    <input type="text" id="login" placeholder="Email" />
+    <input type="password" id="password" placeholder="Пароль" />
+    <button onclick="login()">Войти</button>
+    <div id="error" class="error"></div>
+  </div>
+
+  <script>
+    const users = [
+      { login: "admin@crm.com", password: "admin123", role: "admin", name: "Админ" },
+      { login: "manager1@crm.com", password: "pass123", role: "manager", name: "Игорь" },
+      { login: "manager2@crm.com", password: "pass456", role: "manager", name: "Марина" }
+    ];
+
+    function login() {
+      const login = document.getElementById("login").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorBox = document.getElementById("error");
+
+      const user = users.find(u => u.login === login && u.password === password);
+
+      if (user) {
+        localStorage.setItem("user", user.name);
+        localStorage.setItem("role", user.role);
+        localStorage.setItem("login", user.login);
+        localStorage.setItem("accessToSettings", user.role === "admin" ? "true" : "false");
+        window.location.href = "index.html";
+      } else {
+        errorBox.textContent = "Неверный логин или пароль.";
+      }
+    }
+  </script>
+</body>
+</html>

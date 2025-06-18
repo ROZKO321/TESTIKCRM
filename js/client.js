@@ -10,55 +10,62 @@ document.addEventListener("DOMContentLoaded", () => {
   const client = clients.find(c => c.id === clientId);
 
   if (!client) {
-    card.innerHTML = `<p class="empty-state">Клиент не найден</p>`;
-    return;
-  }
-
-  const canEdit = role === "admin" || client.manager === currentUser;
-
-  card.innerHTML = `
-    <div class="client-view">
-      <div class="client-left">
-        <p><strong>Имя:</strong> ${client.firstName}</p>
-        <p><strong>Фамилия:</strong> ${client.lastName}</p>
-        <p><strong>Телефон:</strong> ${client.phone}</p>
-        <p><strong>Email:</strong> ${client.email}</p>
-        <p><strong>Страна:</strong> ${client.country || "—"}</p>
-        <p><strong>Аффилиат:</strong> ${client.affiliate || "—"}</p>
-        <p><strong>Менеджер:</strong> ${client.manager}</p>
-        <p><strong>Загружен:</strong> ${client.date || "—"}</p>
-      </div>
-
-      <div class="client-right">
-        <div class="form-group">
-          <label for="statusSelect">Статус:</label>
-          <select id="statusSelect" ${canEdit ? "" : "disabled"}>
-            <option value="new">Новый</option>
-            <option value="in-progress">В работе</option>
-            <option value="closed">Закрыт</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="commentText">Комментарий:</label>
-          <textarea id="commentText" placeholder="Комментарий..." ${canEdit ? "" : "readonly"}>${client.comment || ""}</textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="reminderDate">Напоминание:</label>
-          <input type="datetime-local" id="reminderDate" value="${client.reminder || ""}" ${canEdit ? "" : "disabled"}>
-        </div>
-
-        ${canEdit ? `
-          <div class="form-actions">
-            <button class="save-btn" onclick="saveClient(${client.id})">💾 Сохранить</button>
-          </div>
-        ` : ""}
-      </div>
+    
+card.innerHTML = `
+  <div class="client-view">
+    <div class="client-left">
+      <p><strong>Имя:</strong> ${client.firstName}</p>
+      <p><strong>Фамилия:</strong> ${client.lastName}</p>
+      <p><strong>Телефон:</strong> ${client.phone}</p>
+      <p><strong>Email:</strong> ${client.email}</p>
+      <p><strong>Страна:</strong> ${client.country || "—"}</p>
+      <p><strong>Аффилиат:</strong> ${client.affiliate || "—"}</p>
+      <p><strong>Менеджер:</strong> ${client.manager}</p>
+      <p><strong>Загружен:</strong> ${client.date || "—"}</p>
     </div>
-  `;
+
+    <div class="client-right">
+      <div class="form-group">
+        <label for="statusSelect">Статус:</label>
+        <select id="statusSelect" ${canEdit ? "" : "disabled"}>
+          <option value="Новый"${client.status === "Новый" ? " selected" : ""}>Новый</option>
+          <option value="В работе"${client.status === "В работе" ? " selected" : ""}>В работе</option>
+          <option value="Закрыт"${client.status === "Закрыт" ? " selected" : ""}>Закрыт</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="reminderInput">Напоминание:</label>
+        <input type="date" id="reminderInput" value="${client.reminder || ""}" ${canEdit ? "" : "disabled"}>
+      </div>
+
+      <div class="form-group">
+        <label for="commentTextarea">Комментарий:</label>
+        <textarea id="commentTextarea" rows="5" ${canEdit ? "" : "disabled"}>${client.comment || ""}</textarea>
+      </div>
+
+      ${canEdit ? '<button id="saveBtn">Сохранить</button>' : ""}
+    </div>
+  </div>
+`;
+
 
   document.getElementById("statusSelect").value = client.status;
+
+  if (canEdit) {
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      client.status = document.getElementById("statusSelect").value;
+      client.reminder = document.getElementById("reminderInput").value;
+      client.comment = document.getElementById("commentTextarea").value;
+
+      const index = clients.findIndex(c => c.id === client.id);
+      if (index !== -1) {
+        clients[index] = client;
+        localStorage.setItem("leads", JSON.stringify(clients));
+        alert("Сохранено");
+      }
+    });
+  }
 });
 
 function saveClient(id) {
