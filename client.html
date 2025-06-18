@@ -1,0 +1,38 @@
+﻿<div id="clientCard" class="client-card" style="max-width:600px;margin:auto;">
+  <h2 id="clientName"></h2>
+
+  <div class="mb-3">
+    <input type="text" id="cName" placeholder="Name" class="form-control mb-2" />
+    <input type="text" id="cSurname" placeholder="Surname" class="form-control mb-2" />
+    <input type="text" id="cPhone" placeholder="Phone" class="form-control mb-2" />
+    <input type="email" id="cEmail" placeholder="Email" class="form-control mb-2" />
+    <input type="text" id="cCountry" placeholder="Country" class="form-control mb-2" />
+    <input type="text" id="cAffiliate" placeholder="Affiliate" class="form-control mb-2" />
+    <select id="cStatus" class="form-select mb-2">
+      <option value="new">New</option>
+      <option value="call-back">Call Back</option>
+      <option value="no-answer">No Answer</option>
+      <option value="never-answer">Never Answers</option>
+      <option value="no-interested">Not Interested</option>
+      <option value="in-work">In Progress</option>
+      <option value="send-mail">Send Email</option>
+    </select>
+    <textarea id="cComment" placeholder="Comment..." class="form-control mb-2"></textarea>
+  </div>
+
+  <div class="mb-3">
+    <h5>Add Reminder</h5>
+    <input type="datetime-local" id="reminderDate" class="form-control mb-2" />
+    <input type="text" id="reminderNote" placeholder="Note" class="form-control mb-2" />
+    <button id="addReminderBtn" class="btn btn-outline-primary btn-sm">Add Reminder</button>
+  </div>
+
+  <div class="mb-3" id="reminderList"></div>
+
+  <div class="d-flex justify-content-between">
+    <button id="saveClientBtn" class="btn btn-success">💾 Save</button>
+    <button id="deleteClientBtn" class="btn btn-danger">🗑 Delete</button>
+  </div>
+</div>
+
+<script src="js/client.js"></script>

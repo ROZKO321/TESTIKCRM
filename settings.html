@@ -1,0 +1,32 @@
+<h2 data-i18n="settings.heading">⚙️ Admin Settings</h2>
+
+<div class="mb-4">
+  <button id="btnAddClient" class="btn btn-success me-2" data-i18n="btn.addClient">Add Client</button>
+  <input type="file" id="importFile" accept=".json" class="form-control d-inline-block" style="width:auto;" />
+  <button id="btnExport" class="btn btn-outline-primary ms-2" data-i18n="btn.export">Export CSV</button>
+</div>
+
+<div class="mb-4">
+  <label><input type="checkbox" id="selectAllClients" /> <span data-i18n="label.selectAll">Select All</span></label>
+  <select id="massManagerSelect" class="form-select d-inline-block" style="width:auto;">
+    <option value="">-- Assign Manager --</option>
+    <option value="manager1">manager1</option>
+    <option value="manager2">manager2</option>
+  </select>
+  <button id="btnMassAssign" class="btn btn-secondary ms-2" data-i18n="btn.assign">Assign Selected</button>
+</div>
+
+<div class="mb-4">
+  <button id="btnLogs" class="btn btn-warning" data-i18n="btn.logs">📜 View Logs</button>
+</div>
+
+<div class="mb-4">
+  <h5>Add Manager Account</h5>
+  <input type="text" id="newLogin" placeholder="Login" class="form-control d-inline-block" style="width:150px;" />
+  <input type="password" id="newPass" placeholder="Password" class="form-control d-inline-block ms-2" style="width:150px;" />
+  <button id="btnAddManager" class="btn btn-info ms-2">Add</button>
+</div>
+
+<div id="adminClientList" class="client-list"></div>
+
+<script src="js/settings.js"></script>

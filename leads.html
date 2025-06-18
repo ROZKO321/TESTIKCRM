@@ -1,0 +1,33 @@
+<h2 data-i18n="leads.heading">📋 My Leads</h2>
+
+<div class="filters mb-3">
+  <input type="search" id="searchInput" placeholder="Search..." />
+  <select id="filterStatus">
+    <option value="">All statuses</option>
+    <option value="new">New</option>
+    <option value="call-back">Call Back</option>
+    <option value="no-answer">No Answer</option>
+    <option value="never-answer">Never Answers</option>
+    <option value="no-interested">Not Interested</option>
+    <option value="in-work">In Progress</option>
+    <option value="send-mail">Send Email</option>
+  </select>
+  <select id="filterAffiliate">
+    <option value="">All affiliates</option>
+  </select>
+  <select id="perPageSelect">
+    <option value="10">Show 10</option>
+    <option value="30">Show 30</option>
+    <option value="50">Show 50</option>
+  </select>
+</div>
+
+<div id="clientList" class="client-list mb-3"></div>
+
+<div class="pagination-controls">
+  <button id="prevPage">←</button>
+  <span id="pageIndicator" style="margin: 0 10px;"></span>
+  <button id="nextPage">→</button>
+</div>
+
+<script src="js/leads.js"></script>
