@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "firstName": "Ivan",
+    "lastName": "Petrov",
+    "email": "ivan@example.com",
+    "phone": "+380501234567",
+    "country": "Ukraine",
+    "affiliate": "Affiliate A",
+    "date": "2024-06-10",
+    "status": "new",
+    "manager": "manager1"
+  },
+  {
+    "id": "2",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "phone": "+380671112233",
+    "country": "USA",
+    "affiliate": "Affiliate B",
+    "date": "2024-06-12",
+    "status": "call back",
+    "manager": "manager2"
+  },
+  {
+    "id": "3",
+    "firstName": "Марина",
+    "lastName": "Лебедева",
+    "email": "marina@mail.com",
+    "phone": "+380935556677",
+    "country": "Ukraine",
+    "affiliate": "Affiliate A",
+    "date": "2024-06-14",
+    "status": "deposit",
+    "manager": "manager1"
+  }
+]

@@ -2,43 +2,36 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Карточка клиента</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
 </head>
-<body>
-  <div class="page-wrapper">
-    <aside class="sidebar">
-      <div class="logo">
-        <img src="img/logo.svg" alt="Logo"> Coldi CRM
-      </div>
-      <nav>
-        <a href="home.html">Главная</a>
-        <a href="leads.html">Лиды</a>
-        <a href="notifications.html">Напоминания</a>
-        <a href="admin.html" id="adminLink">Админ</a>
-        <a href="#" onclick="logout()" class="logout-link">Выход</a>
-      </nav>
-    </aside>
-
-    <main class="main-content">
-      <h2>Карточка клиента</h2>
-      <div id="clientCard">
-        <p class="empty-state">Загрузка клиента...</p>
-      </div>
-    </main>
+<body style="padding: 40px; font-family: 'Segoe UI', sans-serif;">
+  <div id="clientCard">
+    <h2>Загрузка...</h2>
   </div>
 
-  <!-- Иконка уведомлений -->
-  <div id="notificationIcon" class="notification-icon">
-    <img src="img/bell.svg" alt="🔔" />
-    <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
-  </div>
-  <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
+  <script>
+    const clientId = localStorage.getItem("openClientId");
+    const clients = JSON.parse(localStorage.getItem("crmClients") || "[]");
+    const client = clients.find(c => c.id == clientId);
+    const card = document.getElementById("clientCard");
 
-  <!-- Скрипты -->
-  <script src="js/reminder.js"></script>
-  <script src="js/client.js"></script>
+    if (client) {
+      card.innerHTML = `
+        <h2>${client.name} ${client.surname}</h2>
+        <p><strong>📞 Телефон:</strong> ${client.phone}</p>
+        <p><strong>✉️ Email:</strong> ${client.email}</p>
+        <p><strong>🌍 Страна:</strong> ${client.country}</p>
+        <p><strong>🏷️ Аффилиат:</strong> ${client.affiliate}</p>
+        <p><strong>📦 Статус:</strong> ${client.status}</p>
+        <p><strong>💬 Комментарий:</strong> ${client.comment || "-"}</p>
+        <p><strong>🕒 Загружен:</strong> ${new Date(client.createdAt).toLocaleString()}</p>
+        <p><strong>👤 Менеджер:</strong> ${client.manager}</p>
+      `;
+    } else {
+      card.innerHTML = "<h3>Клиент не найден</h3>";
+    }
+  </script>
 </body>
 </html>
