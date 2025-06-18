@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coldi CRM — Главная</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://unpkg.com/lucide@latest" rel="stylesheet" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="img/logo.svg" alt="Logo" />
+        <span>Coldi CRM</span>
+      </div>
+      <nav class="menu">
+        <a href="home.html" class="active"><i class="lucide lucide-home"></i> Главная</a>
+        <a href="leads.html"><i class="lucide lucide-users"></i> Лиды</a>
+        <a href="notifications.html"><i class="lucide lucide-bell"></i> Напоминания</a>
+        <a href="admin.html" id="adminLink"><i class="lucide lucide-settings"></i> Админ</a>
+        <a href="#" onclick="logout()"><i class="lucide lucide-log-out"></i> Выход</a>
+      </nav>
+    </aside>
+
+    <header class="topbar">
+      <div class="greeting" id="greetingText">Здравствуйте!</div>
+      <div class="bell" id="notificationIcon">
+        <i class="lucide lucide-bell"></i>
+        <div class="notification-popup" id="notificationPopup" style="display: none;">
+          <div class="empty">Напоминаний пока нет</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="welcome-box">
+        <h1>Добро пожаловать в Coldi CRM</h1>
+        <p id="motivationLine">Загрузка мотивации...</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    const quotes = [
+      "Каждое действие приближает к цели.",
+      "CRM — это ваш навигатор в мире продаж.",
+      "Контроль — это сила.",
+      "Прозвон сегодня — результат завтра.",
+      "Ты сильнее, чем твои отговорки.",
+      "День без клиента — день без роста.",
+    ];
+    document.getElementById("motivationLine").innerText =
+      quotes[Math.floor(Math.random() * quotes.length)];
+
+    const role = localStorage.getItem("role");
+    const user = localStorage.getItem("user");
+    const greeting = document.getElementById("greetingText");
+
+    if (!role) location.href = "index.html";
+
+    if (role === "admin") {
+      greeting.innerText = `Здравствуйте, Администратор!`;
+      document.getElementById("adminLink").style.display = "flex";
+    } else {
+      greeting.innerText = `Здравствуйте, Менеджер!`;
+      document.getElementById("adminLink").style.display = "none";
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+
+    // Колокольчик (пока заглушка)
+    const bell = document.getElementById("notificationIcon");
+    const popup = document.getElementById("notificationPopup");
+    bell.addEventListener("click", () => {
+      popup.style.display = popup.style.display === "none" ? "flex" : "none";
+    });
+  </script>
+</body>
+</html>

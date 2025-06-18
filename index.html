@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coldi CRM — Вход</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="login-body">
+  <canvas id="backgroundCanvas"></canvas>
+
+  <div class="login-container">
+    <div class="login-box">
+      <h1 class="welcome-title">Добро пожаловать в <span style="color:#007bff">Coldi CRM</span></h1>
+      <p class="motivation" id="motivationText">Загрузка вдохновения...</p>
+
+      <form onsubmit="login(event)">
+        <input type="text" id="login" placeholder="Логин" required />
+        <input type="password" id="password" placeholder="Пароль" required />
+        <button type="submit">Войти</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const quotes = [
+      "Каждый звонок — шаг к цели.",
+      "CRM — ваш инструмент влияния.",
+      "Организованность приносит прибыль.",
+      "Фокус. Энергия. Результат.",
+      "Хороший день начинается с хорошего клиента.",
+    ];
+    document.getElementById("motivationText").innerText =
+      quotes[Math.floor(Math.random() * quotes.length)];
+
+    function login(e) {
+      e.preventDefault();
+      const login = document.getElementById("login").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+
+      if (!login || !password) {
+        alert("Введите логин и пароль");
+        return;
+      }
+
+      const role = login === "admin" ? "admin" : "manager";
+      localStorage.setItem("role", role);
+      localStorage.setItem("user", login);
+      window.location.href = "home.html";
+    }
+
+    // particles animation
+    const canvas = document.getElementById("backgroundCanvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        dx: Math.random() * 0.5 - 0.25,
+        dy: Math.random() * 0.5 - 0.25,
+      });
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#007bff55";
+        ctx.fill();
+
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      }
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+  </script>
+</body>
+</html>
