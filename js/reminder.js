@@ -1,64 +1,53 @@
-// js/reminder.js — отображение напоминаний
+// reminder.js
+document.addEventListener("DOMContentLoaded", () => {
+  const bell = document.getElementById("reminderBell");
+  const popup = document.getElementById("reminderPopup");
+  const countSpan = document.getElementById("reminderCount");
+  const list = document.getElementById("reminderList");
 
-const reminders = [
-  {
-    id: 1,
-    leadId: 1,
-    leadName: "Артем Иванов",
-    managerId: 2,
-    date: "2025-06-19",
-    comment: "Перезвонить по поводу договора"
-  },
-  {
-    id: 2,
-    leadId: 2,
-    leadName: "Светлана Петрова",
-    managerId: 3,
-    date: "2025-06-20",
-    comment: ""
-  },
-  {
-    id: 3,
-    leadId: 3,
-    leadName: "Максим Козлов",
-    managerId: 2,
-    date: "2025-06-21",
-    comment: "Обсудить условия сотрудничества"
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) return;
+
+  function loadReminders() {
+    const leads = JSON.parse(localStorage.getItem("leads") || "[]");
+    const today = new Date().toISOString().split("T")[0];
+
+    const relevant = leads.filter(lead => {
+      if (!lead.reminderDate) return false;
+      if (lead.reminderDate > today) return false;
+      if (user.role !== "admin" && lead.manager !== user.login) return false;
+      return true;
+    });
+
+    countSpan.textContent = relevant.length;
+    list.innerHTML = "";
+
+    if (relevant.length === 0) {
+      list.innerHTML = "<p>Нет напоминаний</p>";
+      return;
+    }
+
+    relevant.forEach(lead => {
+      const comment = lead.reminderComment?.trim() || lead.comment || "Без комментария";
+      const div = document.createElement("div");
+      div.className = "reminder-item";
+      div.innerHTML = `
+        <a href="client.html?id=${lead.id}" target="_blank">${lead.name}</a>
+        <p>${comment}</p>
+      `;
+      list.appendChild(div);
+    });
   }
-];
 
-const commentsByLeadId = {
-  1: "Последний разговор — уточнить сумму",
-  2: "Не ответила, пробовать позже",
-  3: "Согласен на условия, нужно выставить счёт"
-};
+  bell.addEventListener("click", () => {
+    popup.classList.toggle("show");
+  });
 
-function renderReminders() {
-  const container = document.getElementById("reminderList");
-  container.innerHTML = "";
+  window.addEventListener("click", (e) => {
+    if (!bell.contains(e.target) && !popup.contains(e.target)) {
+      popup.classList.remove("show");
+    }
+  });
 
-  const today = new Date().toISOString().split("T")[0];
-  const filtered = reminders.filter(r => user.role === "admin" || r.managerId === user.id);
-
-  for (const r of filtered) {
-    const div = document.createElement("div");
-    div.className = "reminder-item";
-
-    const comment = r.comment || commentsByLeadId[r.leadId] || "(нет комментария)";
-    const late = r.date < today;
-
-    div.innerHTML = `
-      <div class="reminder-header">
-        <strong>
-          <a href="client.html?id=${r.leadId}" target="_blank">${r.leadName}</a>
-        </strong>
-        <span class="${late ? "late" : ""}">${r.date}</span>
-      </div>
-      <div class="reminder-comment">${comment}</div>
-    `;
-
-    container.appendChild(div);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", renderReminders);
+  loadReminders();
+});

@@ -3,38 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Лиды</title>
+  <title>Лиды | CRM</title>
   <link rel="stylesheet" href="style.css" />
+  <script defer src="auth.js"></script>
+  <script defer src="leads.js"></script>
 </head>
 <body>
-
-  <!-- Навигация появится через navbar.js -->
+  <header class="topbar">
+    <div class="logo">CRM</div>
+    <div class="actions">
+      <button id="remindersBtn" class="icon-button" title="Напоминания">
+        🔔 <span id="reminderCount" class="badge hidden">0</span>
+      </button>
+      <button id="logoutBtn" class="icon-button" title="Выход">🚪</button>
+    </div>
+  </header>
 
   <main class="container">
     <h1>Лиды</h1>
-
-    <!-- ФИЛЬТРЫ -->
     <div class="filters">
-      <input type="text" id="searchInput" placeholder="Поиск по имени, email, телефону" />
-      <select id="statusFilter"></select>
-      <select id="affiliateFilter"></select>
-      <select id="perPageSelect">
-        <option value="10">10</option>
-        <option value="20" selected>20</option>
-        <option value="30">30</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
+      <input type="text" id="searchInput" placeholder="Поиск по имени, email, телефону..." />
+      <select id="statusFilter">
+        <option value="">Все статусы</option>
+      </select>
+      <select id="affiliateFilter">
+        <option value="">Все аффилиаты</option>
+      </select>
+      <select id="perPage">
+        <option value="10">10 на странице</option>
+        <option value="20">20 на странице</option>
+        <option value="30">30 на странице</option>
+        <option value="50">50 на странице</option>
+        <option value="100">100 на странице</option>
       </select>
     </div>
 
-    <!-- СПИСОК ЛИДОВ -->
-    <div id="leadsContainer" class="leads-grid"></div>
+    <div id="leadsContainer" class="grid"></div>
 
-    <!-- ПАГИНАЦИЯ -->
-    <div id="pagination" class="pagination"></div>
+    <div class="pagination">
+      <button id="prevPage">← Назад</button>
+      <span id="pageInfo"></span>
+      <button id="nextPage">Вперёд →</button>
+    </div>
   </main>
 
-  <script src="js/navbar.js"></script>
-  <script src="js/leads.js"></script>
+  <div id="reminderPopup" class="popup hidden"></div>
 </body>
 </html>

@@ -1,150 +1,158 @@
-// js/leads.js
-
+// leads.js
 document.addEventListener("DOMContentLoaded", () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  if (!user) window.location.href = "index.html";
+  if (!user) return;
 
   const leadsContainer = document.getElementById("leadsContainer");
   const searchInput = document.getElementById("searchInput");
   const statusFilter = document.getElementById("statusFilter");
   const affiliateFilter = document.getElementById("affiliateFilter");
-  const pagination = document.getElementById("pagination");
-  const perPageSelect = document.getElementById("perPageSelect");
+  const perPageSelect = document.getElementById("perPage");
+  const prevBtn = document.getElementById("prevPage");
+  const nextBtn = document.getElementById("nextPage");
+  const pageInfo = document.getElementById("pageInfo");
 
   let allLeads = [];
+  let filteredLeads = [];
   let currentPage = 1;
-  let leadsPerPage = parseInt(perPageSelect.value);
 
-  fetchLeads();
+  function loadLeads() {
+    // Заменить этот блок на загрузку с сервера или базы
+    const raw = localStorage.getItem("leads") || "[]";
+    let leads = JSON.parse(raw);
 
-  function fetchLeads() {
-    fetch("data/leads.json")
-      .then(res => res.json())
-      .then(data => {
-        allLeads = user.role === "admin"
-          ? data
-          : data.filter(lead => lead.manager === user.email);
-        renderFilters(allLeads);
-        renderLeads();
-      });
+    // Менеджер видит только своих
+    if (user.role !== "admin") {
+      leads = leads.filter(lead => lead.manager === user.login);
+    }
+
+    allLeads = leads;
+    applyFilters();
+    populateFilters();
   }
 
-  function renderFilters(leads) {
-    const statuses = [...new Set(leads.map(lead => lead.status))];
-    const affiliates = [...new Set(leads.map(lead => lead.affiliate))];
-
-    statusFilter.innerHTML = `<option value="">Все статусы</option>` +
-      statuses.map(s => `<option value="${s}">${s}</option>`).join("");
-
-    affiliateFilter.innerHTML = `<option value="">Все аффилиаты</option>` +
-      affiliates.map(a => `<option value="${a}">${a}</option>`).join("");
-  }
-
-  function renderLeads() {
+  function applyFilters() {
     const query = searchInput.value.toLowerCase();
     const status = statusFilter.value;
     const affiliate = affiliateFilter.value;
 
-    const filtered = allLeads.filter(lead => {
-      const matchQuery =
-        lead.name.toLowerCase().includes(query) ||
-        lead.surname.toLowerCase().includes(query) ||
-        lead.email.toLowerCase().includes(query) ||
-        lead.phone.toLowerCase().includes(query);
-
-      const matchStatus = status ? lead.status === status : true;
-      const matchAffiliate = affiliate ? lead.affiliate === affiliate : true;
-
-      return matchQuery && matchStatus && matchAffiliate;
+    filteredLeads = allLeads.filter(lead => {
+      const matchText = [lead.name, lead.email, lead.phone].some(val =>
+        val.toLowerCase().includes(query)
+      );
+      const matchStatus = !status || lead.status === status;
+      const matchAff = !affiliate || lead.affiliate === affiliate;
+      return matchText && matchStatus && matchAff;
     });
 
-    const start = (currentPage - 1) * leadsPerPage;
-    const paginated = filtered.slice(start, start + leadsPerPage);
+    currentPage = 1;
+    renderLeads();
+  }
 
-    leadsContainer.innerHTML = paginated.map(lead => `
-      <div class="card">
-        <div class="info">
-          <strong>${lead.name} ${lead.surname}</strong><br>
-          ${lead.phone} • ${lead.email}<br>
-          ${lead.country} • ${lead.date} • <b>${lead.affiliate}</b>
+  function renderLeads() {
+    leadsContainer.innerHTML = "";
+    const perPage = parseInt(perPageSelect.value);
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    const pageLeads = filteredLeads.slice(start, end);
+
+    if (pageLeads.length === 0) {
+      leadsContainer.innerHTML = "<p>Нет лидов</p>";
+      pageInfo.textContent = "";
+      return;
+    }
+
+    pageLeads.forEach(lead => {
+      const card = document.createElement("div");
+      card.className = "lead-card";
+      card.innerHTML = `
+        <div class="lead-left">
+          <p><strong>${lead.name}</strong></p>
+          <p>${lead.phone}</p>
+          <p>${lead.email}</p>
+          <p>${lead.country}</p>
+          <p>Дата: ${lead.created || "-"}</p>
+          <p>Аффилиат: ${lead.affiliate || "-"}</p>
         </div>
-        <div class="actions">
-          <select class="status-select" onchange="updateStatus('${lead.id}', this.value)">
-            ${["Новый", "В работе", "Закрыт"].map(s =>
-              `<option value="${s}" ${s === lead.status ? "selected" : ""}>${s}</option>`
-            ).join("")}
-          </select>
-
-          <textarea placeholder="Комментарий..." onchange="saveComment('${lead.id}', this.value)">${lead.comment || ""}</textarea>
-
+        <div class="lead-right">
           <div class="reminder-block">
-            <input type="date" onchange="saveReminder('${lead.id}', this.value)" value="${lead.reminderDate || ""}">
-            <input type="text" placeholder="Напоминание..." onchange="saveReminderComment('${lead.id}', this.value)" value="${lead.reminderComment || ""}">
+            <label>Напомнить:</label>
+            <input type="date" data-id="${lead.id}" class="reminder-date" value="${lead.reminderDate || ""}">
+            <textarea placeholder="Комментарий" data-id="${lead.id}" class="reminder-comment">${lead.reminderComment || ""}</textarea>
+          </div>
+          <div class="comment-block">
+            <label>Комментарий:</label>
+            <textarea data-id="${lead.id}" class="lead-comment">${lead.comment || ""}</textarea>
+          </div>
+          <div class="status-block">
+            <label>Статус:</label>
+            <select data-id="${lead.id}" class="lead-status">
+              <option value="new" ${lead.status === "new" ? "selected" : ""}>Новый</option>
+              <option value="in_progress" ${lead.status === "in_progress" ? "selected" : ""}>В работе</option>
+              <option value="closed" ${lead.status === "closed" ? "selected" : ""}>Закрыт</option>
+            </select>
           </div>
         </div>
-      </div>
-    `).join("");
+      `;
+      leadsContainer.appendChild(card);
+    });
 
-    renderPagination(filtered.length);
+    const totalPages = Math.ceil(filteredLeads.length / perPage);
+    pageInfo.textContent = `Страница ${currentPage} из ${totalPages}`;
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
   }
 
-  function renderPagination(total) {
-    const pages = Math.ceil(total / leadsPerPage);
-    pagination.innerHTML = "";
+  function populateFilters() {
+    const statuses = [...new Set(allLeads.map(l => l.status))];
+    const affiliates = [...new Set(allLeads.map(l => l.affiliate))];
 
-    for (let i = 1; i <= pages; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = i;
-      btn.classList.toggle("active", i === currentPage);
-      btn.addEventListener("click", () => {
-        currentPage = i;
-        renderLeads();
-      });
-      pagination.appendChild(btn);
+    statusFilter.innerHTML = '<option value="">Все статусы</option>' +
+      statuses.map(s => `<option value="${s}">${s}</option>`).join("");
+
+    affiliateFilter.innerHTML = '<option value="">Все аффилиаты</option>' +
+      affiliates.map(a => `<option value="${a}">${a}</option>`).join("");
+  }
+
+  // События
+  searchInput.addEventListener("input", applyFilters);
+  statusFilter.addEventListener("change", applyFilters);
+  affiliateFilter.addEventListener("change", applyFilters);
+  perPageSelect.addEventListener("change", renderLeads);
+  prevBtn.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderLeads();
     }
-  }
-
-  searchInput.addEventListener("input", () => {
-    currentPage = 1;
-    renderLeads();
+  });
+  nextBtn.addEventListener("click", () => {
+    const totalPages = Math.ceil(filteredLeads.length / parseInt(perPageSelect.value));
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderLeads();
+    }
   });
 
-  statusFilter.addEventListener("change", () => {
-    currentPage = 1;
-    renderLeads();
+  // Авто-сохранение
+  leadsContainer.addEventListener("change", (e) => {
+    const id = e.target.dataset.id;
+    const type = e.target.className;
+
+    const lead = allLeads.find(l => l.id === id);
+    if (!lead) return;
+
+    if (type.includes("reminder-date")) {
+      lead.reminderDate = e.target.value;
+    } else if (type.includes("reminder-comment")) {
+      lead.reminderComment = e.target.value;
+    } else if (type.includes("lead-comment")) {
+      lead.comment = e.target.value;
+    } else if (type.includes("lead-status")) {
+      lead.status = e.target.value;
+    }
+
+    localStorage.setItem("leads", JSON.stringify(allLeads));
   });
 
-  affiliateFilter.addEventListener("change", () => {
-    currentPage = 1;
-    renderLeads();
-  });
-
-  perPageSelect.addEventListener("change", () => {
-    leadsPerPage = parseInt(perPageSelect.value);
-    currentPage = 1;
-    renderLeads();
-  });
+  loadLeads();
 });
-
-// ----------------
-// Обновление статуса, комментария и напоминаний:
-
-function updateStatus(id, status) {
-  console.log("Обновить статус:", id, status);
-  // Здесь будет логика сохранения, если подключен сервер или локальное хранилище
-}
-
-function saveComment(id, text) {
-  console.log("Комментарий:", id, text);
-  // Здесь будет логика сохранения
-}
-
-function saveReminder(id, date) {
-  console.log("Напоминание дата:", id, date);
-  // Здесь будет логика сохранения
-}
-
-function saveReminderComment(id, text) {
-  console.log("Напоминание текст:", id, text);
-  // Здесь будет логика сохранения
-}
