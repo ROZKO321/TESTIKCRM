@@ -1,172 +1,159 @@
-// Пример лидов (в проде подгружается с сервера)
-let allLeads = JSON.parse(localStorage.getItem("leads")) || [
-  {
-    id: 1,
-    firstName: "Иван",
-    lastName: "Иванов",
-    phone: "+380501234567",
-    email: "ivanov@example.com",
-    country: "Украина",
-    date: "2025-06-01",
-    affiliate: "Site A",
-    status: "новый",
-    manager: "manager1"
-  },
-  {
-    id: 2,
-    firstName: "Ольга",
-    lastName: "Петрова",
-    phone: "+380931112233",
-    email: "petrova@example.com",
-    country: "Украина",
-    date: "2025-06-03",
-    affiliate: "Site B",
-    status: "в работе",
-    manager: "manager2"
-  },
-  {
-    id: 3,
-    firstName: "Алексей",
-    lastName: "Сидоров",
-    phone: "+380671234567",
-    email: "sidorov@example.com",
-    country: "Украина",
-    date: "2025-06-05",
-    affiliate: "Site C",
-    status: "успешно",
-    manager: "manager1"
+if (!localStorage.getItem("crmClients")) {
+  const sampleLeads = Array.from({ length: 20 }, (_, i) => ({
+    id: i + 1,
+    firstName: `Имя${i + 1}`,
+    lastName: `Фамилия${i + 1}`,
+    phone: `+38063${Math.floor(1000000 + Math.random() * 8999999)}`,
+    email: `user${i + 1}@example.com`,
+    status: ["new", "in-progress", "closed"][i % 3],
+    affiliate: ["partnerA", "partnerB"][i % 2],
+    manager: i % 2 === 0 ? "manager1" : "manager2",
+    comment: `Комментарий к клиенту #${i + 1}`,
+    reminder: "",
+    country: "Украина"
+  }));
+
+  localStorage.setItem("crmClients", JSON.stringify(sampleLeads));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("search");
+  const statusFilter = document.getElementById("statusFilter");
+  const affiliateFilter = document.getElementById("affiliateFilter");
+  const limitSelect = document.getElementById("limitSelect");
+  const leadList = document.getElementById("leadList");
+  const paginationContainer = document.getElementById("pagination");
+
+  const role = localStorage.getItem("role") || "manager";
+  const currentUser = localStorage.getItem("user") || "manager1";
+
+  const allLeads = JSON.parse(localStorage.getItem("crmClients")) || [];
+
+  let filteredLeads = [];
+  let currentPage = 1;
+
+  function paginate(array, page, limit) {
+    const start = (page - 1) * limit;
+    return array.slice(start, start + limit);
   }
-];
 
-let currentUser = JSON.parse(localStorage.getItem("currentUser")) || { role: "admin", username: "admin" };
-const isAdmin = currentUser.role === "admin";
+  function renderPagination(total, limit) {
+    const totalPages = Math.ceil(total / limit);
+    paginationContainer.innerHTML = "";
 
-let filteredLeads = [];
-let currentPage = 1;
-let leadsPerPage = 10;
+    if (totalPages <= 1) return;
 
-const searchInput = document.getElementById("search-input");
-const statusFilter = document.getElementById("status-filter");
-const affiliateFilter = document.getElementById("affiliate-filter");
-const paginationSelect = document.getElementById("pagination");
-const leadsList = document.getElementById("leads-list");
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      if (i === currentPage) btn.style.backgroundColor = "#0056b3";
 
-searchInput.addEventListener("input", updateView);
-statusFilter.addEventListener("change", updateView);
-affiliateFilter.addEventListener("change", updateView);
-paginationSelect.addEventListener("change", () => {
-  leadsPerPage = parseInt(paginationSelect.value);
-  currentPage = 1;
-  updateView();
+      btn.addEventListener("click", () => {
+        currentPage = i;
+        renderLeads();
+      });
+
+      paginationContainer.appendChild(btn);
+    }
+  }
+
+  function renderLeads() {
+    const limit = parseInt(limitSelect.value);
+    const leadsToRender = paginate(filteredLeads, currentPage, limit);
+    leadList.innerHTML = "";
+
+    if (leadsToRender.length === 0) {
+      leadList.innerHTML = "<div class='empty-state'>Ничего не найдено</div>";
+      paginationContainer.innerHTML = "";
+      return;
+    }
+
+    leadsToRender.forEach((lead) => {
+      const card = document.createElement("div");
+      card.className = "lead-card";
+
+      const left = document.createElement("div");
+      left.className = "lead-left";
+
+      const name = document.createElement("div");
+      name.className = "lead-name";
+      name.textContent = `${lead.firstName} ${lead.lastName}`;
+      name.style.cursor = "pointer";
+      name.onclick = () => {
+        window.open(`client.html?id=${lead.id}`, "_blank");
+      };
+
+      const phone = document.createElement("div");
+      phone.textContent = lead.phone;
+
+      const email = document.createElement("div");
+      email.textContent = lead.email;
+
+      left.append(name, phone, email);
+
+      const right = document.createElement("div");
+      right.className = "lead-right";
+
+      const status = document.createElement("div");
+      status.className = "lead-status";
+      status.textContent =
+        lead.status === "new"
+          ? "Новый"
+          : lead.status === "in-progress"
+          ? "В работе"
+          : "Закрыт";
+
+      const affiliate = document.createElement("div");
+      affiliate.className = "lead-affiliate";
+      affiliate.textContent = lead.affiliate;
+
+      right.append(status, affiliate);
+
+      const comment = document.createElement("div");
+      comment.className = "lead-comment";
+      comment.textContent = lead.comment ? `💬 ${lead.comment}` : "Комментарий отсутствует";
+
+      card.append(left, right, comment);
+      leadList.appendChild(card);
+    });
+
+    renderPagination(filteredLeads.length, limit);
+  }
+
+  function applyFilters() {
+    const search = searchInput.value.toLowerCase();
+    const status = statusFilter.value;
+    const affiliate = affiliateFilter.value;
+
+    filteredLeads = allLeads.filter((lead) => {
+      const matchesSearch =
+        lead.firstName.toLowerCase().includes(search) ||
+        lead.lastName.toLowerCase().includes(search) ||
+        lead.email.toLowerCase().includes(search) ||
+        lead.phone.toLowerCase().includes(search);
+
+      const matchesStatus = status ? lead.status === status : true;
+      const matchesAffiliate = affiliate ? lead.affiliate === affiliate : true;
+      const matchesManager = role === "admin" ? true : lead.manager === currentUser;
+
+      return matchesSearch && matchesStatus && matchesAffiliate && matchesManager;
+    });
+
+    currentPage = 1;
+    renderLeads();
+  }
+
+  // Слушатели
+  searchInput.addEventListener("input", applyFilters);
+  statusFilter.addEventListener("change", applyFilters);
+  affiliateFilter.addEventListener("change", applyFilters);
+  limitSelect.addEventListener("change", () => {
+    currentPage = 1;
+    renderLeads();
+    renderPagination(filteredLeads.length, parseInt(limitSelect.value));
+  });
+// Сохраняем всех лидов для client.html
+localStorage.setItem("leads", JSON.stringify(allLeads));
+
+  applyFilters();
 });
-
-function filterLeads() {
-  const query = searchInput.value.toLowerCase();
-  const status = statusFilter.value;
-  const affiliate = affiliateFilter.value;
-
-  filteredLeads = allLeads.filter((lead) => {
-    if (!isAdmin && lead.manager !== currentUser.username) return false;
-    const matchesQuery =
-      lead.firstName.toLowerCase().includes(query) ||
-      lead.lastName.toLowerCase().includes(query) ||
-      lead.email.toLowerCase().includes(query) ||
-      lead.phone.includes(query);
-    const matchesStatus = !status || lead.status === status;
-    const matchesAffiliate = !affiliate || lead.affiliate === affiliate;
-
-    return matchesQuery && matchesStatus && matchesAffiliate;
-  });
-}
-
-function renderLeads() {
-  leadsList.innerHTML = "";
-  const start = (currentPage - 1) * leadsPerPage;
-  const end = start + leadsPerPage;
-  const paginatedLeads = filteredLeads.slice(start, end);
-
-  if (paginatedLeads.length === 0) {
-    leadsList.innerHTML = "<p>Нет лидов</p>";
-    return;
-  }
-
-  paginatedLeads.forEach((lead) => {
-    const card = document.createElement("div");
-    card.className = "lead-card";
-    card.innerHTML = `
-      <div class="lead-left">
-        <div class="lead-name">${lead.firstName} ${lead.lastName}</div>
-        <div class="lead-info">${lead.phone} | ${lead.email}</div>
-        <div class="lead-info">Статус: ${lead.status} | Аффилиат: ${lead.affiliate}</div>
-      </div>
-    `;
-    card.addEventListener("click", () => openModal(lead));
-    leadsList.appendChild(card);
-  });
-}
-
-function updateView() {
-  filterLeads();
-  renderLeads();
-}
-
-updateView();
-
-// МОДАЛЬНОЕ ОКНО
-const modal = document.getElementById("lead-modal");
-const modalName = document.getElementById("modal-name");
-const modalPhone = document.getElementById("modal-phone");
-const modalEmail = document.getElementById("modal-email");
-const modalCountry = document.getElementById("modal-country");
-const modalAffiliate = document.getElementById("modal-affiliate");
-const modalReminder = document.getElementById("modal-reminder-date");
-const modalComment = document.getElementById("modal-comment");
-const modalStatus = document.getElementById("modal-status");
-
-let activeLeadId = null;
-
-function openModal(lead) {
-  activeLeadId = lead.id;
-  modalName.textContent = `${lead.firstName} ${lead.lastName}`;
-  modalPhone.value = lead.phone;
-  modalEmail.value = lead.email;
-  modalCountry.value = lead.country;
-  modalAffiliate.value = lead.affiliate;
-  modalStatus.value = lead.status;
-
-  // Загружаем данные из localStorage
-  const reminders = JSON.parse(localStorage.getItem("reminders") || "{}");
-  const reminder = reminders[lead.id];
-  modalReminder.value = reminder?.date || "";
-  modalComment.value = reminder?.comment || "";
-
-  modal.style.display = "flex";
-}
-
-window.onclick = function (e) {
-  if (e.target === modal) {
-    modal.style.display = "none";
-  }
-};
-
-function saveLead() {
-  const newStatus = modalStatus.value;
-  const comment = modalComment.value.trim();
-  const date = modalReminder.value;
-
-  // Обновить статус
-  const leadIndex = allLeads.findIndex((l) => l.id === activeLeadId);
-  if (leadIndex !== -1) {
-    allLeads[leadIndex].status = newStatus;
-  }
-
-  localStorage.setItem("leads", JSON.stringify(allLeads));
-
-  // Сохранить напоминание
-  const reminders = JSON.parse(localStorage.getItem("reminders") || "{}");
-  reminders[activeLeadId] = { comment, date };
-  localStorage.setItem("reminders", JSON.stringify(reminders));
-
-  modal.style.display = "none";
-  updateView();
-}

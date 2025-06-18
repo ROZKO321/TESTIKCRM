@@ -1,82 +1,90 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const bellBtn = document.querySelector(".icon-btn");
-  const reminderCount = document.getElementById("reminder-count");
-  const role = localStorage.getItem("role");
-  const username = localStorage.getItem("username");
-  const now = new Date().toISOString();
+  const bell = document.getElementById("notificationIcon");
+  const popup = document.getElementById("notificationPopup");
+  const badge = document.getElementById("notificationBadge");
 
-  // Получаем все напоминания
-  const reminders = JSON.parse(localStorage.getItem("reminders") || "[]");
+  const role = localStorage.getItem("role") || "manager";
+  const user = localStorage.getItem("user") || "manager1";
 
-  // Фильтруем по роли
-  const filtered = reminders.filter(rem => {
-    if (!rem.date) return false;
-    if (new Date(rem.date) < new Date()) return false; // Устаревшие не показываем
-    if (role === "admin") return true;
-    return rem.manager === username;
+  const leads = JSON.parse(localStorage.getItem("leads")) || [];
+
+  const reminders = leads.filter((lead) => {
+    if (!lead.reminder || !lead.reminder.date) return false;
+
+    const reminderTime = new Date(lead.reminder.date).getTime();
+    const now = Date.now();
+    const inRange = reminderTime - now <= 10 * 60 * 1000 && reminderTime - now > -60 * 1000;
+
+    const hasAccess = role === "admin" || lead.manager === user;
+
+    return inRange && hasAccess;
   });
 
-  // Обновляем бейдж
-  if (filtered.length > 0) {
-    reminderCount.style.display = "inline-block";
-    reminderCount.innerText = filtered.length;
+  if (reminders.length > 0) {
+    badge.textContent = reminders.length;
+    badge.style.display = "block";
   } else {
-    reminderCount.style.display = "none";
+    badge.style.display = "none";
   }
 
-  // Отображение списка (при клике)
-  bellBtn.addEventListener("click", () => {
-    const containerId = "reminder-dropdown";
-    let dropdown = document.getElementById(containerId);
+  bell.addEventListener("click", () => {
+    popup.innerHTML = `<h4>Напоминания</h4>`;
 
-    if (dropdown) {
-      dropdown.remove();
-      return;
-    }
-
-    dropdown = document.createElement("div");
-    dropdown.id = containerId;
-    dropdown.style.position = "absolute";
-    dropdown.style.top = "60px";
-    dropdown.style.right = "20px";
-    dropdown.style.width = "320px";
-    dropdown.style.maxHeight = "400px";
-    dropdown.style.overflowY = "auto";
-    dropdown.style.background = "#fff";
-    dropdown.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
-    dropdown.style.borderRadius = "8px";
-    dropdown.style.padding = "10px";
-    dropdown.style.zIndex = "999";
-
-    if (filtered.length === 0) {
-      dropdown.innerHTML = `<p style="margin: 10px;">No reminders</p>`;
+    if (reminders.length === 0) {
+      popup.innerHTML += `<p>Здесь пока пусто</p>`;
     } else {
-      dropdown.innerHTML = filtered.map(rem => `
-        <div style="padding: 8px; border-bottom: 1px solid #eee;">
-          <a href="#" onclick="openClient(${rem.clientId})" style="font-weight: bold; color: #1a73e8;">${rem.clientName}</a><br/>
-          <small>🕒 ${new Date(rem.date).toLocaleString()}</small><br/>
-          <small>💬 ${rem.comment || rem.lastComment || "-"}</small>
-        </div>
-      `).join("");
+      reminders.forEach((lead) => {
+        const div = document.createElement("div");
+        div.className = "notification-item";
+
+        div.innerHTML = `
+          <strong>${lead.firstName} ${lead.lastName}</strong><br />
+          <span class="notification-time">${new Date(lead.reminder.date).toLocaleString()}</span><br />
+          <span>${lead.reminder.note || lead.comment || "Комментарий отсутствует"}</span>
+        `;
+
+        div.onclick = () => {
+          window.open(`client.html?id=${lead.id}`, "_blank");
+        };
+
+        popup.appendChild(div);
+      });
     }
 
-    document.body.appendChild(dropdown);
+    popup.style.display = popup.style.display === "none" ? "block" : "none";
+  });
 
-    // Закрытие при клике вне
-    const closeOnClickOutside = (e) => {
-      if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
-        dropdown.remove();
-        document.removeEventListener("click", closeOnClickOutside);
-      }
+  // Уведомление (всплывающее)
+  reminders.forEach((lead) => {
+    const show = () => {
+      const popup = document.createElement("div");
+      popup.className = "popup-toast";
+      popup.innerHTML = `
+        <div><strong>Напоминание:</strong> ${lead.firstName} ${lead.lastName}</div>
+        <div>${lead.reminder.note || lead.comment || "Комментарий отсутствует"}</div>
+      `;
+      Object.assign(popup.style, {
+        position: "fixed",
+        bottom: "20px",
+        right: "20px",
+        background: "#fff",
+        padding: "15px",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+        borderRadius: "10px",
+        zIndex: 2000,
+        minWidth: "250px",
+      });
+
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 7000);
     };
-    setTimeout(() => {
-      document.addEventListener("click", closeOnClickOutside);
-    }, 0);
+
+    const reminderTime = new Date(lead.reminder.date).getTime();
+    const now = Date.now();
+    const tenMinutes = reminderTime - 10 * 60 * 1000 - now;
+    const oneMinute = reminderTime - 1 * 60 * 1000 - now;
+
+    if (tenMinutes > 0) setTimeout(show, tenMinutes);
+    if (oneMinute > 0) setTimeout(show, oneMinute);
   });
 });
-
-// Функция перехода к карточке клиента
-function openClient(id) {
-  localStorage.setItem("openClientId", id);
-  window.open("client.html", "_blank");
-}

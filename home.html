@@ -3,148 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CRM Главная</title>
+  <title>Coldi CRM — Главная</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
-  <link href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.css" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f7f9fc;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 240px;
-      background: #ffffff;
-      border-right: 1px solid #e0e0e0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-    }
-
-    .sidebar-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 40px;
-    }
-
-    .sidebar-logo img {
-      width: 32px;
-      height: 32px;
-    }
-
-    .sidebar h1 {
-      font-size: 18px;
-      margin: 0;
-    }
-
-    .sidebar a {
-      text-decoration: none;
-      color: #333;
-      margin-bottom: 15px;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: color 0.3s;
-    }
-
-    .sidebar a:hover {
-      color: #007bff;
-    }
-
-    .main-content {
-      flex: 1;
-      padding: 40px;
-    }
-
-    .welcome {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .role-info {
-      color: #666;
-      font-size: 16px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 40px;
-    }
-
-    .logout-btn {
-      background: none;
-      border: none;
-      color: #007bff;
-      font-size: 15px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .logout-btn:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="sidebar-logo">
-      <img src="img/logo.svg" alt="CRM" />
-      <h1>CRM</h1>
+  <div class="sidebar" id="sidebar">
+    <div class="logo">
+      <img src="img/logo.svg" alt="Logo" />
+      Coldi
     </div>
-    <a href="home.html"><i class="lucide lucide-home"></i> Главная</a>
-    <a href="leads.html"><i class="lucide lucide-users"></i> Лиды</a>
-    <a href="notifications.html"><i class="lucide lucide-bell"></i> Напоминания</a>
-    <a href="admin.html" id="admin-link" style="display: none;"><i class="lucide lucide-settings"></i> Настройки</a>
+    <div class="menu">
+      <a href="home.html" class="active"><i class="lucide lucide-home"></i> Главная</a>
+      <a href="leads.html"><i class="lucide lucide-users"></i> Лиды</a>
+      <a href="notifications.html"><i class="lucide lucide-bell"></i> Напоминания</a>
+      <a href="admin.html" id="adminPanelLink"><i class="lucide lucide-settings"></i> Админ</a>
+      <a href="#" onclick="logout()" class="logout-link">🚪 Выход</a>
+    </div>
   </div>
 
-  <div class="main-content">
-    <div class="topbar">
-      <div>
-        <div class="welcome" id="welcome-message">Добро пожаловать!</div>
-        <div class="role-info" id="role-display">Ваша роль: —</div>
+  <div class="topbar">
+    <button id="toggleSidebar" class="menu-toggle"><i class="lucide lucide-menu"></i></button>
+    <div class="topbar-right">
+      <div id="notificationBell" class="bell">
+        <i class="lucide lucide-bell"></i>
+        <div class="notification-popup" id="notificationPopup">
+          <p class="empty">Пока здесь пусто...</p>
+        </div>
       </div>
-      <button class="logout-btn" onclick="logout()">
-        <i class="lucide lucide-log-out"></i> Выйти
-      </button>
     </div>
-    
-    <p>Выберите раздел в боковом меню для начала работы.</p>
+  </div>
+
+  <div class="content">
+    <div class="welcome-box">
+      <h1 id="welcomeText">Добро пожаловать в Coldi CRM</h1>
+      <p id="mottoText">Пусть день будет продуктивным!</p>
+    </div>
   </div>
 
   <script>
+    // Проверка роли
     const role = localStorage.getItem("role");
-    const welcome = document.getElementById("welcome-message");
-    const roleDisplay = document.getElementById("role-display");
-    const adminLink = document.getElementById("admin-link");
-
     if (!role) {
       window.location.href = "index.html";
-    } else {
-      if (role === "admin") {
-        welcome.innerText = "Добро пожаловать, администратор!";
-        roleDisplay.innerText = "Ваша роль: Администратор";
-        adminLink.style.display = "flex";
-      } else {
-        welcome.innerText = "Добро пожаловать, менеджер!";
-        roleDisplay.innerText = "Ваша роль: Менеджер";
-      }
     }
 
+    // Панель админа
+    const adminPanel = document.getElementById("adminPanelLink");
+    if (role !== "admin") {
+      adminPanel.style.display = "none";
+    }
+
+    // Приветствие + мотивация
+    const phrases = [
+      "Каждый звонок — шаг к успеху!",
+      "Улыбка слышна даже по телефону.",
+      "CRM — ваш ключ к победе!",
+      "Будь на шаг впереди конкурентов.",
+      "Сегодня — лучший день для новых достижений.",
+      "Хорошее начало — полдела.",
+      "Продажи начинаются с веры в себя."
+    ];
+    const greeting = document.getElementById("welcomeText");
+    const motto = document.getElementById("mottoText");
+
+    greeting.textContent = "Добро пожаловать в Coldi CRM";
+    motto.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+
+    // Скрытие/открытие боковой панели
+    document.getElementById("toggleSidebar").onclick = () => {
+      document.getElementById("sidebar").classList.toggle("collapsed");
+    };
+
+    // Logout
     function logout() {
-      localStorage.clear();
+      localStorage.removeItem("role");
       window.location.href = "index.html";
     }
+
+    lucide.createIcons();
   </script>
+<!-- Уведомления -->
+<div id="notificationIcon" class="notification-icon">
+  <img src="img/bell.svg" alt="🔔" />
+  <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
+</div>
+
+<div id="notificationPopup" class="notification-popup" style="display: none;"></div>
+
+<script src="js/reminder.js"></script>
+
 </body>
 </html>

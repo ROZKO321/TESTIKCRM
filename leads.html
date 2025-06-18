@@ -3,255 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CRM — Лиды</title>
+  <title>База лидов</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="icon" href="img/logo.svg" type="image/svg+xml" />
-  <link href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.css" rel="stylesheet" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f7f9fc;
-      display: flex;
-    }
-
-    .sidebar {
-      width: 240px;
-      background: #fff;
-      border-right: 1px solid #e0e0e0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-    }
-
-    .sidebar h1 {
-      font-size: 18px;
-      margin-bottom: 40px;
-    }
-
-    .sidebar a {
-      text-decoration: none;
-      color: #333;
-      margin-bottom: 15px;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: color 0.3s;
-    }
-
-    .sidebar a:hover {
-      color: #007bff;
-    }
-
-    .main-content {
-      flex: 1;
-      padding: 30px 40px;
-      overflow-y: auto;
-    }
-
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    .filters input, .filters select {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-    .leads-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .lead-card {
-      background: #fff;
-      padding: 16px 20px;
-      border-radius: 10px;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: box-shadow 0.3s;
-    }
-
-    .lead-card:hover {
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-    }
-
-    .lead-left {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .lead-name {
-      font-size: 17px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .lead-info {
-      font-size: 14px;
-      color: #666;
-    }
-
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal-content {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      width: 600px;
-      max-width: 90%;
-    }
-
-    .modal-content h2 {
-      margin-top: 0;
-    }
-
-    .modal-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .modal-col {
-      flex: 1;
-    }
-
-    .modal textarea,
-    .modal input,
-    .modal select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      margin-top: 8px;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .modal-actions {
-      margin-top: 20px;
-      text-align: right;
-    }
-
-    .modal-actions button {
-      padding: 8px 14px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .modal-actions button:hover {
-      background: #0056b3;
-    }
-  </style>
 </head>
 <body>
   <div class="sidebar">
-    <h1>CRM</h1>
-    <a href="home.html"><i class="lucide lucide-home"></i> Главная</a>
-    <a href="leads.html"><i class="lucide lucide-users"></i> Лиды</a>
-    <a href="notifications.html"><i class="lucide lucide-bell"></i> Напоминания</a>
-    <a href="admin.html" id="admin-link" style="display: none;"><i class="lucide lucide-settings"></i> Настройки</a>
+    <div class="logo"><img src="img/logo.svg" alt="Logo" /> Coldi CRM</div>
+    <a href="home.html">Главная</a>
+    <a class="active" href="leads.html">Лиды</a>
+    <a href="notifications.html">Напоминания</a>
+    <a href="admin.html" id="adminMenu" style="display: none;">Настройки</a>
+    <a href="#" onclick="logout()" class="exit-link">Выход</a>
   </div>
 
-  <div class="main-content">
-    <h2>Лиды</h2>
-
-    <div class="filters">
-      <input type="text" id="search-input" placeholder="Поиск (имя, email, телефон)" />
-      <select id="status-filter">
-        <option value="">Все статусы</option>
-        <option value="новый">Новый</option>
-        <option value="в работе">В работе</option>
-        <option value="успешно">Успешно</option>
-        <option value="отказ">Отказ</option>
-      </select>
-      <select id="affiliate-filter">
-        <option value="">Все аффилиаты</option>
-        <option value="Site A">Site A</option>
-        <option value="Site B">Site B</option>
-        <option value="Site C">Site C</option>
-      </select>
-      <select id="pagination">
-        <option value="10">10 на странице</option>
-        <option value="20">20</option>
-        <option value="30">30</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-      </select>
-    </div>
-
-    <div class="leads-list" id="leads-list">
-      <!-- Карточки лидов появятся здесь -->
-    </div>
-  </div>
-
-  <!-- Модальное окно карточки -->
-  <div class="modal" id="lead-modal">
-    <div class="modal-content">
-      <h2 id="modal-name">Имя клиента</h2>
-      <div class="modal-row">
-        <div class="modal-col">
-          <label>Телефон</label>
-          <input type="text" id="modal-phone" readonly />
-
-          <label>Email</label>
-          <input type="text" id="modal-email" readonly />
-
-          <label>Страна</label>
-          <input type="text" id="modal-country" readonly />
-
-          <label>Аффилиат</label>
-          <input type="text" id="modal-affiliate" readonly />
-        </div>
-        <div class="modal-col">
-          <label>Напоминание</label>
-          <input type="datetime-local" id="modal-reminder-date" />
-
-          <label>Комментарий</label>
-          <textarea id="modal-comment" rows="3"></textarea>
-
-          <label>Статус</label>
-          <select id="modal-status">
-            <option value="новый">Новый</option>
-            <option value="в работе">В работе</option>
-            <option value="успешно">Успешно</option>
-            <option value="отказ">Отказ</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button onclick="saveLead()">Сохранить</button>
+  <div class="main">
+    <div class="topbar">
+      <div id="greeting">Здравствуйте!</div>
+      <div id="notificationIcon" class="notification-icon">
+        <img src="img/bell.svg" alt="🔔" />
+        <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
       </div>
     </div>
+
+    <div class="content">
+      <h2>База лидов</h2>
+
+      <div class="filter-bar">
+        <input type="text" id="search" placeholder="Поиск по имени, email или телефону" />
+        <select id="statusFilter">
+          <option value="">Все статусы</option>
+          <option value="new">Новый</option>
+          <option value="in-progress">В работе</option>
+          <option value="closed">Закрыт</option>
+        </select>
+        <select id="affiliateFilter">
+          <option value="">Все аффилиаты</option>
+          <option value="partnerA">Партнёр A</option>
+          <option value="partnerB">Партнёр B</option>
+        </select>
+        <select id="limitSelect">
+          <option value="10">Показать 10</option>
+          <option value="20">Показать 20</option>
+          <option value="30" selected>Показать 30</option>
+          <option value="50">Показать 50</option>
+          <option value="100">Показать 100</option>
+        </select>
+      </div>
+
+      <div id="leadList" class="lead-list"></div>
+    </div>
   </div>
 
+  <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
   <script src="js/leads.js"></script>
+  <script src="js/reminder.js"></script>
 </body>
 </html>

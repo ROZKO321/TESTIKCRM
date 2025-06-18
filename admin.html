@@ -2,33 +2,84 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Админ-панель | Coldi CRM</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="admin-container" style="padding: 30px; font-family: 'Segoe UI', sans-serif;">
-    <h1>👨‍💼 Панель администратора</h1>
-
-    <div class="admin-actions" style="margin-bottom: 20px;">
-      <button id="add-client-btn">➕ Добавить клиента</button>
-      <button id="add-manager-btn">👤 Добавить менеджера</button>
-      <input type="file" id="upload-csv" accept=".csv" />
-      <button id="export-csv">📤 Экспорт CSV</button>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="img/logo.svg" alt="Logo" />
+      <span>Coldi CRM</span>
     </div>
-
-    <div style="overflow-x: auto;">
-      <table id="clients-table" class="styled-table">
-        <!-- Клиенты будут рендериться сюда -->
-      </table>
-    </div>
-
-    <h2 style="margin-top: 40px;">📜 Логи</h2>
-    <div id="logs" class="logs-container" style="background: #f5f5f5; border-radius: 8px; padding: 15px;">
-      <!-- Логи будут рендериться сюда -->
+    <div class="menu">
+      <a href="home.html">Главная</a>
+      <a href="leads.html">Лиды</a>
+      <a href="notifications.html">Напоминания</a>
+      <a href="admin.html" class="active">Настройки</a>
+      <a href="#" onclick="logout()" class="logout-link">Выход</a>
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+  <div class="topbar">
+    <div class="greeting" id="greetingText">Здравствуйте, администратор!</div>
+  </div>
+
+  <div class="content">
+    <h2>Админ-панель</h2>
+    <p>Вы можете создать тестовые данные или управлять аккаунтами менеджеров.</p>
+
+    <button id="generateClients" class="btn-generate">Создать тестовых клиентов</button>
+  </div>
+
+  <!-- Кнопка и JS -->
+  <script>
+    function logout() {
+      localStorage.removeItem("role");
+      localStorage.removeItem("user");
+      window.location.href = "index.html";
+    }
+<button id="generateClients" class="btn-generate">Создать тестовых клиентов</button>
+
+    document.getElementById("generateClients").addEventListener("click", () => {
+      const sampleLeads = Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        firstName: `Имя${i + 1}`,
+        lastName: `Фамилия${i + 1}`,
+        phone: `+38063${Math.floor(1000000 + Math.random() * 8999999)}`,
+        email: `user${i + 1}@example.com`,
+        status: ["new", "in-progress", "closed"][i % 3],
+        affiliate: ["partnerA", "partnerB"][i % 2],
+        manager: i % 2 === 0 ? "manager1" : "manager2",
+        comment: `Комментарий к клиенту #${i + 1}`,
+        reminder: "",
+        country: "Украина"
+      }));
+
+      localStorage.setItem("crmClients", JSON.stringify(sampleLeads));
+      alert("Тестовые клиенты успешно созданы!");
+    });
+  </script>
+<script>
+document.getElementById("generateClients").addEventListener("click", () => {
+  const sampleLeads = Array.from({ length: 20 }, (_, i) => ({
+    id: i + 1,
+    firstName: `Имя${i + 1}`,
+    lastName: `Фамилия${i + 1}`,
+    phone: `+38063${Math.floor(1000000 + Math.random() * 8999999)}`,
+    email: `user${i + 1}@example.com`,
+    status: ["new", "in-progress", "closed"][i % 3],
+    affiliate: ["partnerA", "partnerB"][i % 2],
+    manager: i % 2 === 0 ? "manager1" : "manager2",
+    comment: `Комментарий к клиенту #${i + 1}`,
+    reminder: "",
+    country: "Украина"
+  }));
+
+  localStorage.setItem("crmClients", JSON.stringify(sampleLeads));
+  alert("Тестовые клиенты успешно созданы!");
+});
+</script>
+
 </body>
 </html>
