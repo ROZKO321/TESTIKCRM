@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Карточка клиента — Coldi CRM</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
+<body class="client-body">
   <div class="page-wrapper">
+    <!-- Сайдбар -->
     <aside class="sidebar">
-      <div class="logo"><img src="img/logo.svg" alt="Logo"> Coldi CRM</div>
+      <div class="logo">
+        <img src="img/logo.svg" alt="Logo" />
+        Coldi CRM
+      </div>
       <nav class="menu">
         <a href="home.html">Главная</a>
         <a href="leads.html">Лиды</a>
@@ -20,20 +24,23 @@
     </aside>
 
     <main class="main-content">
-      <h2>Карточка клиента</h2>
-      <div id="clientCard" class="card">
+      <div class="topbar">
+        <div class="greeting">Карточка клиента</div>
+        <div id="notificationIcon" class="notification-icon">
+          <img src="img/bell.svg" alt="🔔" />
+          <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
+        </div>
+      </div>
+
+      <div class="card" id="clientCard">
         <p class="empty-state">Загрузка клиента...</p>
       </div>
     </main>
   </div>
 
-  <!-- Уведомления -->
-  <div id="notificationIcon" class="notification-icon">
-    <img src="img/bell.svg" alt="🔔" />
-    <div id="notificationBadge" class="notification-badge" style="display: none;">0</div>
-  </div>
-  <div id="notificationPopup" class="notification-popup" style="display: none;"></div>
+  <div id="notificationPopup" class="notification-popup"></div>
 
+  <!-- Скрипты -->
   <script src="js/reminder.js"></script>
   <script src="js/client.js"></script>
 </body>

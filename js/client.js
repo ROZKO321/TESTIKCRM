@@ -6,11 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const role = localStorage.getItem("role");
   const currentUser = localStorage.getItem("user");
 
-  const clients = JSON.parse(localStorage.getItem("crmClients") || "[]");
+  const clients = JSON.parse(localStorage.getItem("leads") || "[]");
   const client = clients.find(c => c.id === clientId);
 
   if (!client) {
-    card.innerHTML = "<p class='empty-state'>Клиент не найден</p>";
+    card.innerHTML = `<p class="empty-state">Клиент не найден</p>`;
     return;
   }
 
@@ -28,9 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Менеджер:</strong> ${client.manager}</p>
         <p><strong>Загружен:</strong> ${client.date || "—"}</p>
       </div>
+
       <div class="client-right">
         <div class="form-group">
-          <label>Статус:</label>
+          <label for="statusSelect">Статус:</label>
           <select id="statusSelect" ${canEdit ? "" : "disabled"}>
             <option value="new">Новый</option>
             <option value="in-progress">В работе</option>
@@ -39,12 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div class="form-group">
-          <label>Комментарий:</label>
-          <textarea id="commentText" ${canEdit ? "" : "readonly"}>${client.comment || ""}</textarea>
+          <label for="commentText">Комментарий:</label>
+          <textarea id="commentText" placeholder="Комментарий..." ${canEdit ? "" : "readonly"}>${client.comment || ""}</textarea>
         </div>
 
         <div class="form-group">
-          <label>Напоминание:</label>
+          <label for="reminderDate">Напоминание:</label>
           <input type="datetime-local" id="reminderDate" value="${client.reminder || ""}" ${canEdit ? "" : "disabled"}>
         </div>
 
@@ -57,12 +58,11 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   `;
 
-  // Установка значения статуса вручную (после рендера select)
   document.getElementById("statusSelect").value = client.status;
 });
 
 function saveClient(id) {
-  const clients = JSON.parse(localStorage.getItem("crmClients") || "[]");
+  const clients = JSON.parse(localStorage.getItem("leads") || "[]");
   const index = clients.findIndex(c => c.id === id);
   if (index === -1) return;
 
@@ -70,6 +70,6 @@ function saveClient(id) {
   clients[index].comment = document.getElementById("commentText").value;
   clients[index].reminder = document.getElementById("reminderDate").value;
 
-  localStorage.setItem("crmClients", JSON.stringify(clients));
+  localStorage.setItem("leads", JSON.stringify(clients));
   alert("Изменения сохранены!");
 }
